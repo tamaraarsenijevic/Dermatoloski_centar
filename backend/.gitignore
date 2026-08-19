@@ -1,0 +1,30 @@
+/generated/prisma
+# Zavisnosti (dependencies)
+/node_modules
+
+# Generisana izradnja (build output)
+/dist
+/build
+/generated/prisma
+.agents/
+skills-lock.json
+
+# Okruženje i tajne promenljive (environment variables)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logovi
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sistemski i IDE fajlovi
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.user

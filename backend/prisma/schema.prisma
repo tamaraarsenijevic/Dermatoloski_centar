@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Uloge zaposlenih koji imaju pristup aplikaciji
+enum Uloga {
+  ADMIN
+  DERMATOLOG
+}
+
+// Statusi zakazanog termina
+enum StatusTermina {
+  ZAKAZANO
+  OTKAZANO
+  ZAVRSENO
+}
+
+// 1. ZAPOSLENI (Samo Admini i Dermatolozi koji se prijavljuju u aplikaciju)
+model Zaposleni {
+  id        Int      @id @default(autoincrement())
+  ime       String
+  prezime   String
+  email     String   @unique
+  lozinka   String
+  telefon   String
+  uloga     Uloga
+  aktivan   Boolean  @default(true)
+  kreiranoAt DateTime @default(now())
+
+  termini         Termin[]                  @relation("DermatologTermini")
+  izvestaji       Izvestaj[]                @relation("LekarIzvestaji")
+  izvrseneUsluge  IzvrsenaUsluga[]
+}
+
+// 2. PACIJENTI (Samo podaci u bazi, nemaju pristup aplikaciji)
+model Pacijent {
+  id         Int      @id @default(autoincrement())
+  ime        String
+  prezime    String
+  jmbg       String   @unique
+
+  telefon    String?
+  email      String?
+  napomena   String?
+  kreiranoAt DateTime @default(now())
+
+  termini         Termin[]
+  izvrseneUsluge  IzvrsenaUsluga[]
+}
+
+// 3. TRETMANI / USLUGE (Cenovnik)
+model Usluga {
+  id          Int      @id @default(autoincrement())
+  naziv       String
+  opis        String?
+  trajanjeMin Int      @default(30)
+  cena        Float
+  termini     Termin[]
+  izvrseneUsluge  IzvrsenaUsluga[]
+}
+
+// 4. ZAKAZANI TERMINI
+model Termin {
+  id            Int           @id @default(autoincrement())
+  datumVreme    DateTime
+  status        StatusTermina @default(ZAKAZANO)
+  napomena      String?
+  kreiranoAt    DateTime      @default(now())
+
+  // Strani ključevi
+  dermatologId  Int
+  dermatolog    Zaposleni     @relation("DermatologTermini", fields: [dermatologId], references: [id], onDelete: Cascade)
+
+  pacijentId    Int
+  pacijent      Pacijent      @relation(fields: [pacijentId], references: [id])
+
+  uslugaId      Int
+  usluga        Usluga        @relation(fields: [uslugaId], references: [id])
+
+  // Izveštaj nakon završenog pregleda
+  izvestaj      Izvestaj?
+}
+
+// 5. ZDRAVSTVENI KARTON / IZVEŠTAJ SA PREGLEDA
+model Izvestaj {
+  id           Int       @id @default(autoincrement())
+  dijagnoza    String
+  terapija     String?
+  anamneza     String?
+  kreiranoAt   DateTime  @default(now())
+
+  // Strani ključevi
+  terminId     Int       @unique
+  termin       Termin    @relation(fields: [terminId], references: [id], onDelete: Cascade)
+
+  dermatologId Int
+  dermatolog   Zaposleni @relation("LekarIzvestaji", fields: [dermatologId], references: [id])
+}
+
+model IzvrsenaUsluga {
+  id           Int      @id @default(autoincrement())
+  datum        DateTime @default(now())
+
+  pacijentId   Int
+  pacijent     Pacijent @relation(fields: [pacijentId], references: [id])
+
+  dermatologId Int
+  dermatolog   Zaposleni @relation(fields: [dermatologId], references: [id])
+
+  uslugaId     Int
+  usluga       Usluga @relation(fields: [uslugaId], references: [id])
+}
