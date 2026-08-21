@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login/Login";
-import Pocetna from "./pages/Pocetna"; // NOVO
+import Login from "./pages/Login";
+import Pocetna from "./pages/Pocetna";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DermatolozeLista from "./pages/Admin/DermatolozeLista";
 import Pacijenti from "./pages/Dermatolog/Pacijenti";
