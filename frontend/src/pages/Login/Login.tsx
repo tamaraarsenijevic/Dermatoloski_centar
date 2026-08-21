@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
+import "./Login.style.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [lozinka, setLozinka] = useState("");
+  const [prikaziLozinku, setPrikaziLozinku] = useState(false);
   const [greska, setGreska] = useState("");
   const [ucitavanje, setUcitavanje] = useState(false);
   const { login } = useAuth();
@@ -18,58 +20,167 @@ export default function Login() {
       await login(email, lozinka);
       navigate("/");
     } catch {
-      setGreska("Pogrešan email ili lozinka.");
+      setGreska("Pogrešan email ili lozinka. Pokušajte ponovo.");
     } finally {
       setUcitavanje(false);
     }
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 400,
-        margin: "80px auto",
-        padding: 24,
-        border: "1px solid #ddd",
-        borderRadius: 8,
-      }}
-    >
-      <h2>Prijava</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
-          />
+    <div className="login-page">
+      <div className="login-card">
+        <div className="login-form-panel">
+          <div className="login-header">
+            <div className="login-brand">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              Dermatološki Centar
+            </div>
+            <h1 className="login-title">Dobro došli nazad</h1>
+            <p className="login-description">
+              Unesite vaše pristupne podatke za ulazak u sistem.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="login-field">
+              <label className="login-label" htmlFor="email">
+                Email adresa
+              </label>
+              <input
+                className="login-input"
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="ime@dermatologija.rs"
+                required
+              />
+            </div>
+
+            <div className="login-field-password">
+              <div className="login-password-header">
+                <label className="login-label" htmlFor="lozinka">
+                  Lozinka
+                </label>
+                <button
+                  type="button"
+                  className="login-forgot-password"
+                  onClick={() =>
+                    alert(
+                      "Kontaktirajte administratora sistema radi ponovnog podešavanja lozinke.",
+                    )
+                  }
+                >
+                  Zaboravili ste lozinku?
+                </button>
+              </div>
+
+              <div className="login-password-wrapper">
+                <input
+                  className="login-input"
+                  id="lozinka"
+                  type={prikaziLozinku ? "text" : "password"}
+                  value={lozinka}
+                  onChange={(e) => setLozinka(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  className="login-toggle-password"
+                  onClick={() => setPrikaziLozinku(!prikaziLozinku)}
+                  title={prikaziLozinku ? "Sakrij lozinku" : "Prikaži lozinku"}
+                >
+                  {prikaziLozinku ? (
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {greska && (
+              <div className="login-error">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                {greska}
+              </div>
+            )}
+
+            <button
+              className="login-button"
+              type="submit"
+              disabled={ucitavanje}
+            >
+              {ucitavanje ? "Prijavljivanje u toku..." : "Prijavi se"}
+            </button>
+          </form>
+
+          <p className="login-copyright">
+            © {new Date().getFullYear()} Dermatološki Centar. Sva prava
+            zadržana.
+          </p>
         </div>
 
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="lozinka">Lozinka</label>
-          <input
-            id="lozinka"
-            type="password"
-            value={lozinka}
-            onChange={(e) => setLozinka(e.target.value)}
-            required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
-          />
+        <div className="login-image-panel">
+          <div className="login-image-overlay" />
+          <div className="login-image-content">
+            <h2 className="login-image-title">
+              Napredna nega i stručna dermatološka dijagnostika
+            </h2>
+            <p className="login-image-description">
+              Integrisani portal za upravljanje kartonima pacijenata, terminima
+              i medicinskim izveštajima.
+            </p>
+          </div>
         </div>
-
-        {greska && <p style={{ color: "red" }}>{greska}</p>}
-
-        <button
-          type="submit"
-          disabled={ucitavanje}
-          style={{ width: "100%", padding: 10 }}
-        >
-          {ucitavanje ? "Prijavljivanje..." : "Prijavi se"}
-        </button>
-      </form>
+      </div>
     </div>
   );
 }
