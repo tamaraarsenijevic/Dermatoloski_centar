@@ -172,6 +172,7 @@ app.get(
 app.get(
   "/api/pacijenti",
   autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
   async (req: Request, res: Response): Promise<void> => {
     const pretraga = req.query.pretraga as string | undefined;
 
@@ -196,6 +197,7 @@ app.get(
 app.post(
   "/api/pacijenti",
   autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
   async (req: Request, res: Response): Promise<void> => {
     const { ime, prezime, jmbg, telefon, email, napomena } = req.body;
     try {
@@ -211,11 +213,79 @@ app.post(
   },
 );
 
+app.get(
+  "/api/pacijenti/:id",
+  autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const pacijent = await prisma.pacijent.findUnique({
+        where: { id: Number(req.params.id) },
+      });
+      if (!pacijent) {
+        res.status(404).json({ greska: "Pacijent nije pronađen." });
+        return;
+      }
+      res.json(pacijent);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ greska: "Greška pri učitavanju pacijenta." });
+    }
+  },
+);
+
+app.put(
+  "/api/pacijenti/:id",
+  autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
+  async (req: Request, res: Response): Promise<void> => {
+    const { ime, prezime, jmbg, telefon, email, napomena } = req.body;
+
+    try {
+      const izmenjen = await prisma.pacijent.update({
+        where: { id: Number(req.params.id) },
+        data: {
+          ...(ime !== undefined && { ime }),
+          ...(prezime !== undefined && { prezime }),
+          ...(jmbg !== undefined && { jmbg }),
+          ...(telefon !== undefined && { telefon }),
+          ...(email !== undefined && { email }),
+          ...(napomena !== undefined && { napomena }),
+        },
+      });
+      res.json(izmenjen);
+    } catch (error) {
+      console.error(error);
+      res
+        .status(400)
+        .json({ greska: "Neuspešna izmena (JMBG možda već postoji)." });
+    }
+  },
+);
+
+app.delete(
+  "/api/pacijenti/:id",
+  autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      await prisma.pacijent.delete({ where: { id: Number(req.params.id) } });
+      res.json({ poruka: "Pacijent obrisan." });
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({
+        greska: "Neuspešno brisanje (pacijent ima povezane termine/izveštaje).",
+      });
+    }
+  },
+);
+
 // ==================== TERMINI ====================
 
 app.get(
   "/api/termini",
   autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
   async (_req: Request, res: Response): Promise<void> => {
     const termini = await prisma.termin.findMany({
       include: {
@@ -232,6 +302,7 @@ app.get(
 app.post(
   "/api/termini",
   autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
   async (req: Request, res: Response): Promise<void> => {
     const { datumVreme, pacijentId, dermatologId, uslugaId, napomena } =
       req.body;
@@ -256,6 +327,7 @@ app.post(
 app.put(
   "/api/termini/:id",
   autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
   async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { datumVreme, status, napomena } = req.body;
@@ -280,6 +352,7 @@ app.put(
 app.delete(
   "/api/termini/:id",
   autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
   async (req: Request, res: Response): Promise<void> => {
     try {
       await prisma.termin.delete({ where: { id: Number(req.params.id) } });
@@ -333,6 +406,79 @@ app.get(
       return;
     }
     res.json(izvestaj);
+  },
+);
+
+// Izmena izveštaja - samo dermatolog koji ga je uneo
+app.put(
+  "/api/izvestaji/:id",
+  autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const { dijagnoza, terapija, anamneza } = req.body;
+
+    try {
+      const postojeci = await prisma.izvestaj.findUnique({
+        where: { id: Number(req.params.id) },
+      });
+
+      if (!postojeci) {
+        res.status(404).json({ greska: "Izveštaj nije pronađen." });
+        return;
+      }
+
+      if (postojeci.dermatologId !== req.zaposleni!.id) {
+        res.status(403).json({
+          greska: "Možete izmeniti samo izveštaje koje ste sami uneli.",
+        });
+        return;
+      }
+
+      const izmenjen = await prisma.izvestaj.update({
+        where: { id: Number(req.params.id) },
+        data: {
+          ...(dijagnoza !== undefined && { dijagnoza }),
+          ...(terapija !== undefined && { terapija }),
+          ...(anamneza !== undefined && { anamneza }),
+        },
+      });
+      res.json(izmenjen);
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ greska: "Neuspešna izmena izveštaja." });
+    }
+  },
+);
+
+// Brisanje izveštaja - samo dermatolog koji ga je uneo
+app.delete(
+  "/api/izvestaji/:id",
+  autentifikacija,
+  dozvoljenaUloga("DERMATOLOG"),
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+      const postojeci = await prisma.izvestaj.findUnique({
+        where: { id: Number(req.params.id) },
+      });
+
+      if (!postojeci) {
+        res.status(404).json({ greska: "Izveštaj nije pronađen." });
+        return;
+      }
+
+      if (postojeci.dermatologId !== req.zaposleni!.id) {
+        res.status(403).json({
+          greska: "Možete obrisati samo izveštaje koje ste sami uneli.",
+        });
+        return;
+      }
+
+      await prisma.izvestaj.delete({ where: { id: Number(req.params.id) } });
+      res.json({ poruka: "Izveštaj obrisan." });
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ greska: "Neuspešno brisanje izveštaja." });
+    }
   },
 );
 
@@ -454,6 +600,7 @@ app.get(
         ime: true,
         prezime: true,
         email: true,
+        telefon: true,
         uloga: true,
         aktivan: true,
         kreiranoAt: true,
@@ -521,17 +668,18 @@ app.put(
   dozvoljenaUloga("ADMIN"),
   async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
-    const { ime, prezime, email, uloga, aktivan } = req.body;
+    const { ime, prezime, email, telefon, uloga, aktivan } = req.body;
 
     try {
       const izmenjen = await prisma.zaposleni.update({
         where: { id: Number(id) },
-        data: { ime, prezime, email, uloga, aktivan },
+        data: { ime, prezime, email, telefon, uloga, aktivan },
         select: {
           id: true,
           ime: true,
           prezime: true,
           email: true,
+          telefon: true,
           uloga: true,
           aktivan: true,
         },
@@ -554,6 +702,85 @@ app.delete(
       await prisma.zaposleni.delete({ where: { id: Number(id) } });
       res.json({ poruka: "Zaposleni uspešno obrisan." });
     } catch (error) {
+      res
+        .status(400)
+        .json({ greska: "Neuspešno brisanje (možda ima povezane termine)." });
+    }
+  },
+);
+
+// ADMIN: Dodaj novu uslugu
+app.post(
+  "/api/usluge",
+  autentifikacija,
+  dozvoljenaUloga("ADMIN"),
+  async (req: Request, res: Response): Promise<void> => {
+    const { naziv, opis, trajanjeMin, cena } = req.body as {
+      naziv?: string;
+      opis?: string;
+      trajanjeMin?: number;
+      cena?: number;
+    };
+
+    if (!naziv || cena === undefined) {
+      res.status(400).json({ greska: "Naziv i cena su obavezni." });
+      return;
+    }
+
+    try {
+      const novaUsluga = await prisma.usluga.create({
+        data: {
+          naziv,
+          opis,
+          trajanjeMin: trajanjeMin ?? 30,
+          cena: Number(cena),
+        },
+      });
+      res.status(201).json(novaUsluga);
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ greska: "Neuspešno kreiranje usluge." });
+    }
+  },
+);
+
+// ADMIN: Izmeni uslugu
+app.put(
+  "/api/usluge/:id",
+  autentifikacija,
+  dozvoljenaUloga("ADMIN"),
+  async (req: Request, res: Response): Promise<void> => {
+    const { naziv, opis, trajanjeMin, cena } = req.body;
+
+    try {
+      const izmenjena = await prisma.usluga.update({
+        where: { id: Number(req.params.id) },
+        data: {
+          ...(naziv !== undefined && { naziv }),
+          ...(opis !== undefined && { opis }),
+          ...(trajanjeMin !== undefined && { trajanjeMin }),
+          ...(cena !== undefined && { cena: Number(cena) }),
+        },
+      });
+      res.json(izmenjena);
+    } catch (error) {
+      console.error(error);
+      res.status(400).json({ greska: "Neuspešna izmena usluge." });
+    }
+  },
+);
+
+// ADMIN: Obriši uslugu
+app.delete(
+  "/api/usluge/:id",
+  autentifikacija,
+  dozvoljenaUloga("ADMIN"),
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      await prisma.usluga.delete({ where: { id: Number(req.params.id) } });
+      res.json({ poruka: "Usluga obrisana." });
+    } catch (error) {
+      console.error(error);
       res
         .status(400)
         .json({ greska: "Neuspešno brisanje (možda ima povezane termine)." });
