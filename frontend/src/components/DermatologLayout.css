@@ -1,0 +1,203 @@
+.dermatolog-layout {
+  min-height: 100vh;
+  display: flex;
+  color: #0f172a;
+}
+
+.dermatolog-sidebar {
+  width: 248px;
+  flex: 0 0 248px;
+  min-height: 100vh;
+  padding: 28px 16px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 12px;
+  margin-bottom: 52px;
+  color: #0f172a;
+}
+.sidebar-brand-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #0284c7;
+  color: white;
+  font-size: 20px;
+}
+.sidebar-brand strong,
+.sidebar-brand span {
+  display: block;
+  line-height: 1.15;
+}
+.sidebar-brand strong {
+  font-size: 14px;
+}
+.sidebar-brand span {
+  color: #0284c7;
+  font-size: 14px;
+  font-weight: 700;
+}
+.sidebar-label {
+  margin: 0 12px 12px;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+}
+.sidebar-nav {
+  flex: 1;
+}
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+  padding: 12px;
+  border-radius: 8px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+.sidebar-link svg,
+.sidebar-logout svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sidebar-link:hover {
+  color: #0284c7;
+  background: #f0f9ff;
+}
+.sidebar-link.active {
+  color: #0369a1;
+  background: #e0f2fe;
+}
+.sidebar-bottom {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 18px;
+}
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 18px;
+}
+.sidebar-avatar {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sidebar-user-details {
+  min-width: 0;
+}
+.sidebar-user-details strong,
+.sidebar-user-details span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-user-details strong {
+  font-size: 12px;
+}
+.sidebar-user-details span {
+  margin-top: 3px;
+  color: #94a3b8;
+  font-size: 11px;
+}
+.sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+.sidebar-logout:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.dermatolog-content {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  .dermatolog-layout {
+    display: block;
+  }
+  .dermatolog-sidebar {
+    width: 100%;
+    min-height: auto;
+    padding: 14px 16px;
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .sidebar-brand {
+    margin-bottom: 16px;
+  }
+  .sidebar-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .sidebar-label {
+    display: none;
+  }
+  .sidebar-link {
+    margin: 0;
+    white-space: nowrap;
+  }
+  .sidebar-bottom {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 0;
+    padding-top: 12px;
+  }
+  .sidebar-user {
+    flex: 1;
+    padding: 0;
+  }
+  .sidebar-logout {
+    width: auto;
+  }
+  .sidebar-logout svg {
+    flex: 0 0 auto;
+  }
+  .sidebar-logout {
+    font-size: 0;
+  }
+}
