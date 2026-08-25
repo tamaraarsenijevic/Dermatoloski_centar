@@ -2,29 +2,18 @@ import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import { formatDoctorName } from "../utils/formatters";
-import "./DermatologLayout.css";
+import "./AdminLayout.css";
 
 interface Props {
   children: ReactNode;
 }
 
 const navItems = [
-  { path: "/termini", label: "Termini", icon: "calendar" },
-  { path: "/pacijenti", label: "Pacijenti", icon: "users" },
-  { path: "/izvestaji", label: "Izveštaji", icon: "file" },
+  { path: "/admin/dermatolozi", label: "Zaposleni", icon: "users" },
+  { path: "/admin/usluge", label: "Usluge", icon: "briefcase" },
 ];
 
 function Icon({ name }: { name: string }) {
-  if (name === "calendar") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3" y="4" width="18" height="17" rx="2" />
-        <line x1="16" y1="2" x2="16" y2="6" />
-        <line x1="8" y1="2" x2="8" y2="6" />
-        <line x1="3" y1="10" x2="21" y2="10" />
-      </svg>
-    );
-  }
   if (name === "users") {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -34,39 +23,37 @@ function Icon({ name }: { name: string }) {
       </svg>
     );
   }
+
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="8" y1="13" x2="16" y2="13" />
-      <line x1="8" y1="17" x2="16" y2="17" />
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
     </svg>
   );
 }
 
-export default function DermatologLayout({ children }: Props) {
+export default function AdminLayout({ children }: Props) {
   const { user, logout } = useAuth();
   const initials = user ? `${user.ime[0] ?? ""}${user.prezime[0] ?? ""}` : "";
 
   return (
-    <div className="dermatolog-layout">
-      <aside className="dermatolog-sidebar">
-        <div className="sidebar-brand">
-          <div className="sidebar-brand-icon">✦</div>
+    <div className="admin-layout">
+      <aside className="admin-sidebar">
+        <div className="admin-brand">
+          <div className="admin-brand-icon">★</div>
           <div>
-            <strong>Dermatološki</strong>
-            <span>Centar</span>
+            <strong>Admin</strong>
+            <span>Dermatološki Centar</span>
           </div>
         </div>
 
-        <nav className="sidebar-nav" aria-label="Glavna navigacija">
-          <p className="sidebar-label">MENI</p>
+        <nav className="admin-nav" aria-label="Admin navigacija">
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
               className={({ isActive }) =>
-                `sidebar-link${isActive ? " active" : ""}`
+                `admin-link${isActive ? " active" : ""}`
               }
             >
               <Icon name={item.icon} />
@@ -75,19 +62,20 @@ export default function DermatologLayout({ children }: Props) {
           ))}
         </nav>
 
-        <div className="sidebar-bottom">
+        <div className="admin-bottom">
           {user && (
-            <div className="sidebar-user">
-              <div className="sidebar-avatar">{initials}</div>
-              <div className="sidebar-user-details">
+            <div className="admin-user">
+              <div className="admin-avatar">{initials}</div>
+              <div className="admin-user-details">
                 <strong>
                   {formatDoctorName(user.ime, user.prezime, user.uloga)}
                 </strong>
-                <span>Dermatolog</span>
+                <span>Administrator</span>
               </div>
             </div>
           )}
-          <button className="sidebar-logout" type="button" onClick={logout}>
+
+          <button className="admin-logout" type="button" onClick={logout}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               <polyline points="16 17 21 12 16 7" />
@@ -97,7 +85,8 @@ export default function DermatologLayout({ children }: Props) {
           </button>
         </div>
       </aside>
-      <main className="dermatolog-content">{children}</main>
+
+      <main className="admin-content">{children}</main>
     </div>
   );
 }

@@ -1,20 +1,30 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   getZaposleni,
   dodajZaposlenog,
   izmeniZaposlenog,
   obrisiZaposlenog,
 } from "../../api/zaposleni";
-import type { Zaposleni, Uloga } from "../../types";
 import { useAuth } from "../../context/useAuth";
+import type { Zaposleni, Uloga } from "../../types";
+import { formatDoctorName } from "../../utils/formatters";
 import "./Dermatolozi.style.css";
 
-export default function DermatolozeLista() {
+interface ModalBrisanja {
+  id: number;
+  brojTermina: number;
+}
+
+export default function Dermatolozi() {
+  const { user: trenutniKorisnik } = useAuth();
   const [zaposleni, setZaposleni] = useState<Zaposleni[]>([]);
   const [ucitavanje, setUcitavanje] = useState(true);
   const [greska, setGreska] = useState("");
   const [modalOtvoren, setModalOtvoren] = useState(false);
-  const { logout } = useAuth();
+  const [modalBrisanja, setModalBrisanja] = useState<ModalBrisanja | null>(
+    null,
+  );
 
   const [novi, setNovi] = useState({
     ime: "",
@@ -88,14 +98,45 @@ export default function DermatolozeLista() {
   };
 
   const handleObrisi = async (id: number) => {
-    if (!confirm("Da li ste sigurni da želite da obrišete ovog zaposlenog?"))
-      return;
     try {
       await obrisiZaposlenog(id);
       ucitajZaposlene();
-    } catch {
+    } catch (error) {
+      if (
+        axios.isAxiosError(error) &&
+        error.response?.status === 409 &&
+        ["ZAKAZANI_TERMINI", "POTVRDA_BRISANJA"].includes(
+          error.response.data?.kod,
+        )
+      ) {
+        const brojTermina = error.response.data.brojTermina as number;
+        setModalBrisanja({ id, brojTermina });
+        return;
+      }
+
       setGreska("Neuspešno brisanje (možda ima povezane termine).");
     }
+  };
+
+  const potvrdiBrisanje = async () => {
+    if (!modalBrisanja) return;
+
+    const { id } = modalBrisanja;
+    setModalBrisanja(null);
+    try {
+      await obrisiZaposlenog(id, true);
+      ucitajZaposlene();
+    } catch {
+      setGreska("Neuspešno brisanje dermatologa.");
+    }
+  };
+
+  const tekstTermina = (brojTermina: number) => {
+    if (brojTermina === 1) return "1 zakazan termin koji nije završen";
+    if (brojTermina >= 2 && brojTermina <= 4) {
+      return `${brojTermina} zakazana termina koji nisu završeni`;
+    }
+    return `${brojTermina} zakazanih termina koji nisu završeni`;
   };
 
   return (
@@ -109,43 +150,7 @@ export default function DermatolozeLista() {
             administratora.
           </p>
         </div>
-        <button className="btn-logout" onClick={logout}>
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          Odjavi se
-        </button>
       </header>
-
-      {/* Poruka o grešci */}
-      {greska && (
-        <div className="dermatolozi-alert-error">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          {greska}
-        </div>
-      )}
 
       {/* Akcije pre tabele */}
       <div className="dermatolozi-actions">
@@ -197,7 +202,7 @@ export default function DermatolozeLista() {
                           {z.prezime[0]}
                         </div>
                         <span className="font-semibold">
-                          {z.ime} {z.prezime}
+                          {formatDoctorName(z.ime, z.prezime, z.uloga)}
                         </span>
                       </div>
                     </td>
@@ -223,20 +228,22 @@ export default function DermatolozeLista() {
                       </span>
                     </td>
                     <td>
-                      <div className="action-buttons">
-                        <button
-                          className={`btn-action ${z.aktivan ? "deactivate" : "activate"}`}
-                          onClick={() => handleDeaktiviraj(z)}
-                        >
-                          {z.aktivan ? "Deaktiviraj" : "Aktiviraj"}
-                        </button>
-                        <button
-                          className="btn-action delete"
-                          onClick={() => handleObrisi(z.id)}
-                        >
-                          Obriši
-                        </button>
-                      </div>
+                      {z.id !== trenutniKorisnik?.id && (
+                        <div className="action-buttons">
+                          <button
+                            className={`btn-action ${z.aktivan ? "deactivate" : "activate"}`}
+                            onClick={() => handleDeaktiviraj(z)}
+                          >
+                            {z.aktivan ? "Deaktiviraj" : "Aktiviraj"}
+                          </button>
+                          <button
+                            className="btn-action delete"
+                            onClick={() => handleObrisi(z.id)}
+                          >
+                            Obriši
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -355,6 +362,93 @@ export default function DermatolozeLista() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {modalBrisanja && (
+        <div className="modal-overlay" onClick={() => setModalBrisanja(null)}>
+          <div
+            className="modal-content message-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>
+                {modalBrisanja.brojTermina > 0
+                  ? "Zakazani termini"
+                  : "Potvrda brisanja"}
+              </h2>
+              <button
+                className="modal-close-btn"
+                onClick={() => setModalBrisanja(null)}
+                aria-label="Zatvori poruku"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="message-modal-body">
+              {modalBrisanja.brojTermina > 0 ? (
+                <>
+                  <p>
+                    Dermatolog ima {tekstTermina(modalBrisanja.brojTermina)}.
+                  </p>
+                  <p>
+                    Da li ste sigurni da želite da obrišete dermatologa? Ovim će
+                    biti obrisani i ti zakazani termini.
+                  </p>
+                </>
+              ) : (
+                <p>Da li ste sigurni da želite da obrišete dermatologa?</p>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setModalBrisanja(null)}
+              >
+                Otkaži
+              </button>
+              <button
+                type="button"
+                className="btn-danger"
+                onClick={potvrdiBrisanje}
+              >
+                Obriši
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {greska && (
+        <div className="modal-overlay" onClick={() => setGreska("")}>
+          <div
+            className="modal-content message-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Greška</h2>
+              <button
+                className="modal-close-btn"
+                onClick={() => setGreska("")}
+                aria-label="Zatvori poruku"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="message-modal-body">
+              <p>{greska}</p>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setGreska("")}
+              >
+                U redu
+              </button>
+            </div>
           </div>
         </div>
       )}

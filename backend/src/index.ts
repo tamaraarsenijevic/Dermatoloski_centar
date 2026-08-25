@@ -35,11 +35,11 @@ export interface AuthRequest extends Request {
 }
 
 // Middleware za autentifikaciju
-const autentifikacija = (
+const autentifikacija = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction,
-): void => {
+): Promise<void> => {
   const token = req.cookies.token;
 
   if (!token) {
@@ -49,6 +49,16 @@ const autentifikacija = (
 
   try {
     const dekodiran = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
+    const zaposleni = await prisma.zaposleni.findUnique({
+      where: { id: dekodiran.id },
+      select: { aktivan: true },
+    });
+
+    if (!zaposleni || !zaposleni.aktivan) {
+      res.status(401).json({ greska: "Nalog je deaktiviran." });
+      return;
+    }
+
     req.zaposleni = dekodiran;
     next();
   } catch (err) {
@@ -84,6 +94,11 @@ app.post(
       const zaposleni = await prisma.zaposleni.findUnique({ where: { email } });
       if (!zaposleni) {
         res.status(404).json({ greska: "Korisnik nije pronađen." });
+        return;
+      }
+
+      if (!zaposleni.aktivan) {
+        res.status(403).json({ greska: "Nalog je deaktiviran." });
         return;
       }
 
@@ -670,6 +685,13 @@ app.put(
     const { id } = req.params;
     const { ime, prezime, email, telefon, uloga, aktivan } = req.body;
 
+    if (Number(id) === req.zaposleni!.id && aktivan === false) {
+      res
+        .status(400)
+        .json({ greska: "Ne možete deaktivirati sopstveni nalog." });
+      return;
+    }
+
     try {
       const izmenjen = await prisma.zaposleni.update({
         where: { id: Number(id) },
@@ -698,8 +720,37 @@ app.delete(
   dozvoljenaUloga("ADMIN"),
   async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
+    const force = req.query.force === "true";
     try {
-      await prisma.zaposleni.delete({ where: { id: Number(id) } });
+      const brojZakazanihTermina = await prisma.termin.count({
+        where: {
+          dermatologId: Number(id),
+          status: "ZAKAZANO",
+        },
+      });
+
+      if (!force) {
+        res.status(409).json({
+          kod:
+            brojZakazanihTermina > 0 ? "ZAKAZANI_TERMINI" : "POTVRDA_BRISANJA",
+          brojTermina: brojZakazanihTermina,
+          greska:
+            brojZakazanihTermina > 0
+              ? "Dermatolog ima zakazane termine koji nisu završeni."
+              : "Potrebna je potvrda brisanja dermatologa.",
+        });
+        return;
+      }
+
+      await prisma.$transaction(async (tx) => {
+        await tx.izvrsenaUsluga.deleteMany({
+          where: { dermatologId: Number(id) },
+        });
+        await tx.izvestaj.deleteMany({
+          where: { dermatologId: Number(id) },
+        });
+        await tx.zaposleni.delete({ where: { id: Number(id) } });
+      });
       res.json({ poruka: "Zaposleni uspešno obrisan." });
     } catch (error) {
       res

@@ -192,8 +192,12 @@ export default function IzvestajiStranica() {
                       }}
                     >
                       <div style={{ fontSize: 13, color: "#666" }}>
-                        {new Date(iz.kreiranoAt).toLocaleString("sr-RS")} — dr{" "}
-                        {iz.dermatolog.ime} {iz.dermatolog.prezime}
+                        {new Date(iz.kreiranoAt).toLocaleString("sr-RS")} —{" "}
+                        {formatDoctorName(
+                          iz.dermatolog.ime,
+                          iz.dermatolog.prezime,
+                          "DERMATOLOG",
+                        )}
                       </div>
                       <div>
                         <strong>Dijagnoza:</strong> {iz.dijagnoza}

@@ -4,6 +4,7 @@ import { getPacijenti } from "../../api/pacijenti";
 import { getUsluge } from "../../api/usluge";
 import type { Termin, Pacijent, Usluga } from "../../types";
 import { useAuth } from "../../context/useAuth";
+import { formatDoctorName } from "../../utils/formatters";
 
 export default function Termini() {
   const [termini, setTermini] = useState<Termin[]>([]);
@@ -207,7 +208,11 @@ export default function Termini() {
                   {t.pacijent.ime} {t.pacijent.prezime}
                 </td>
                 <td style={{ padding: 8 }}>
-                  {t.dermatolog.ime} {t.dermatolog.prezime}
+                  {formatDoctorName(
+                    t.dermatolog.ime,
+                    t.dermatolog.prezime,
+                    "DERMATOLOG",
+                  )}
                 </td>
                 <td style={{ padding: 8 }}>{t.usluga.naziv}</td>
                 <td style={{ padding: 8 }}>{t.status}</td>

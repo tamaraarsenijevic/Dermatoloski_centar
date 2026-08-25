@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import API from "../../api/api";
 import type { Pacijent, Termin, Zaposleni } from "../../types";
+import { formatDoctorName } from "../../utils/formatters";
 
 interface DashboardProps {
   zaposleni: Zaposleni;
@@ -62,7 +63,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <h1>Dermatološki Centar - Dashboard</h1>
         <div>
           <span>
-            Dobrodošli, {zaposleni.ime} {zaposleni.prezime}
+            Dobrodošli,{" "}
+            {formatDoctorName(
+              zaposleni.ime,
+              zaposleni.prezime,
+              zaposleni.uloga,
+            )}
           </span>
           <button onClick={onLogout} style={{ marginLeft: "10px" }}>
             Odjava
