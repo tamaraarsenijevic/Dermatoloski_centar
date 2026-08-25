@@ -8,6 +8,15 @@ export const dodajIzvestaj = (data: {
   anamneza?: string;
 }) => http.post<Izvestaj>("/izvestaji", data);
 
+export const izmeniIzvestaj = (
+  id: number,
+  data: {
+    dijagnoza: string;
+    terapija?: string;
+    anamneza?: string;
+  },
+) => http.put<Izvestaj>(`/izvestaji/${id}`, data);
+
 export const getIzvestajZaTermin = (terminId: number) =>
   http.get<Izvestaj>(`/izvestaji/termin/${terminId}`);
 

@@ -297,6 +297,31 @@ app.delete(
 
 // ==================== TERMINI ====================
 
+const dermatologImaPreklapanje = async (
+  dermatologId: number,
+  datumVreme: Date,
+  trajanjeMin: number,
+  izuzmiTerminId?: number,
+): Promise<boolean> => {
+  const pocetakNovog = datumVreme.getTime();
+  const krajNovog = pocetakNovog + trajanjeMin * 60 * 1000;
+  const postojeciTermini = await prisma.termin.findMany({
+    where: {
+      dermatologId,
+      status: "ZAKAZANO",
+      ...(izuzmiTerminId !== undefined && { id: { not: izuzmiTerminId } }),
+    },
+    include: { usluga: { select: { trajanjeMin: true } } },
+  });
+
+  return postojeciTermini.some((termin) => {
+    const pocetakPostojeceg = termin.datumVreme.getTime();
+    const krajPostojeceg =
+      pocetakPostojeceg + termin.usluga.trajanjeMin * 60 * 1000;
+    return pocetakNovog < krajPostojeceg && krajNovog > pocetakPostojeceg;
+  });
+};
+
 app.get(
   "/api/termini",
   autentifikacija,
@@ -322,9 +347,33 @@ app.post(
     const { datumVreme, pacijentId, dermatologId, uslugaId, napomena } =
       req.body;
     try {
+      const pocetak = new Date(datumVreme);
+      const usluga = await prisma.usluga.findUnique({
+        where: { id: Number(uslugaId) },
+        select: { trajanjeMin: true },
+      });
+
+      if (Number.isNaN(pocetak.getTime()) || !usluga) {
+        res.status(400).json({ greska: "Datum ili usluga nisu ispravni." });
+        return;
+      }
+
+      if (
+        await dermatologImaPreklapanje(
+          Number(dermatologId),
+          pocetak,
+          usluga.trajanjeMin,
+        )
+      ) {
+        res.status(409).json({
+          greska: "Ne možete zakazati termin, u tom terminu je zakazan drugi.",
+        });
+        return;
+      }
+
       const novTermin = await prisma.termin.create({
         data: {
-          datumVreme: new Date(datumVreme),
+          datumVreme: pocetak,
           pacijentId: Number(pacijentId),
           dermatologId: Number(dermatologId),
           uslugaId: Number(uslugaId),
@@ -348,10 +397,46 @@ app.put(
     const { datumVreme, status, napomena } = req.body;
 
     try {
+      const terminId = Number(id);
+      const postojeciTermin = await prisma.termin.findUnique({
+        where: { id: terminId },
+        include: { usluga: { select: { trajanjeMin: true } } },
+      });
+
+      if (!postojeciTermin) {
+        res.status(404).json({ greska: "Termin nije pronađen." });
+        return;
+      }
+
+      const noviPocetak = datumVreme
+        ? new Date(datumVreme)
+        : postojeciTermin.datumVreme;
+      const noviStatus = status ?? postojeciTermin.status;
+
+      if (Number.isNaN(noviPocetak.getTime())) {
+        res.status(400).json({ greska: "Datum termina nije ispravan." });
+        return;
+      }
+
+      if (
+        noviStatus === "ZAKAZANO" &&
+        (await dermatologImaPreklapanje(
+          postojeciTermin.dermatologId,
+          noviPocetak,
+          postojeciTermin.usluga.trajanjeMin,
+          terminId,
+        ))
+      ) {
+        res.status(409).json({
+          greska: "Ne možete zakazati termin, u tom terminu je zakazan drugi.",
+        });
+        return;
+      }
+
       const izmenjen = await prisma.termin.update({
-        where: { id: Number(id) },
+        where: { id: terminId },
         data: {
-          ...(datumVreme && { datumVreme: new Date(datumVreme) }),
+          ...(datumVreme && { datumVreme: noviPocetak }),
           ...(status && { status }),
           ...(napomena !== undefined && { napomena }),
         },

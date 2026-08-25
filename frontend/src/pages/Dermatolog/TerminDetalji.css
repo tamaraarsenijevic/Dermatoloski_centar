@@ -1,0 +1,185 @@
+.termin-detalji {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 16px;
+  color: #172033;
+}
+
+.termin-detalji-header,
+.termin-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.termin-detalji-header h2 {
+  margin: 4px 0;
+  font-size: 30px;
+}
+
+.termin-detalji-header p:last-child,
+.termin-panel-heading p {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.termin-detalji-eyebrow {
+  margin: 0;
+  color: #0b6e4f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.termin-detalji-back,
+.termin-detalji-link {
+  color: #075985;
+  font-weight: 700;
+}
+
+.termin-detalji-greska,
+.termin-detalji-poruka {
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.termin-detalji-greska {
+  color: #b42318;
+  background: #fff1f2;
+}
+.termin-detalji-poruka {
+  color: #166534;
+  background: #f0fdf4;
+}
+
+.termin-detalji-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0 16px;
+}
+
+.termin-detalji-panel {
+  margin-bottom: 16px;
+  padding: 20px;
+  border: 1px solid #dbe5ed;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(20, 40, 70, 0.06);
+}
+
+.termin-detalji-panel h3 {
+  margin: 0 0 16px;
+}
+.termin-podaci {
+  margin: 0;
+}
+.termin-podaci div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf2f7;
+}
+.termin-podaci div:last-child {
+  border-bottom: 0;
+}
+.termin-podaci dt {
+  color: #64748b;
+  font-size: 13px;
+}
+.termin-podaci dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+}
+
+.status-zakazano,
+.status-otkazano,
+.status-zavrseno {
+  font-weight: 800;
+}
+.status-zakazano {
+  color: #0f4f35;
+}
+.status-otkazano {
+  color: #991b1b;
+}
+.status-zavrseno {
+  color: #1f3f7a;
+}
+
+.termin-detalji-link {
+  display: inline-block;
+  margin-top: 16px;
+}
+.status-akcije {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+.status-akcije button,
+.termin-panel-heading button,
+.termin-izvestaj-form > button {
+  padding: 9px 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #334155;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.status-akcije button.status-aktivan {
+  border-color: #0b6e4f;
+  background: #0b6e4f;
+  color: #fff;
+}
+
+.termin-izvestaj-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+.termin-izvestaj-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+.termin-izvestaj-form textarea {
+  min-height: 110px;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  resize: vertical;
+  font: inherit;
+}
+.termin-izvestaj-form > button {
+  grid-column: 1 / -1;
+  justify-self: start;
+  border: 0;
+  background: #1d4ed8;
+  color: #fff;
+}
+.termin-izvestaj-form > button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+@media (max-width: 720px) {
+  .termin-detalji-header,
+  .termin-panel-heading {
+    flex-direction: column;
+  }
+  .termin-detalji-grid {
+    grid-template-columns: 1fr;
+  }
+  .termin-detalji-header h2 {
+    font-size: 24px;
+  }
+}

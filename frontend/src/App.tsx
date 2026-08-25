@@ -4,7 +4,9 @@ import Pocetna from "./pages/Pocetna";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dermatolozi from "./pages/Admin/Dermatolozi";
 import Pacijenti from "./pages/Dermatolog/Pacijenti";
+import PacijentDetalji from "./pages/Dermatolog/PacijentDetalji.tsx";
 import Termini from "./pages/Dermatolog/Termini";
+import TerminDetalji from "./pages/Dermatolog/TerminDetalji";
 import Izvestaji from "./pages/Dermatolog/IzvestajiStranica";
 import PublicRoute from "./router/PublicRoute/PublicRoute";
 import DermatologLayout from "./components/DermatologLayout";
@@ -55,11 +57,31 @@ function App() {
           }
         />
         <Route
+          path="/pacijenti/:id"
+          element={
+            <ProtectedRoute dozvoljeneUloge={["DERMATOLOG"]}>
+              <DermatologLayout>
+                <PacijentDetalji />
+              </DermatologLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/termini"
           element={
             <ProtectedRoute dozvoljeneUloge={["DERMATOLOG"]}>
               <DermatologLayout>
                 <Termini />
+              </DermatologLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/termini/:id"
+          element={
+            <ProtectedRoute dozvoljeneUloge={["DERMATOLOG"]}>
+              <DermatologLayout>
+                <TerminDetalji />
               </DermatologLayout>
             </ProtectedRoute>
           }

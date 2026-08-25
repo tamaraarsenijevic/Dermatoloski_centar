@@ -1,18 +1,26 @@
 import { useEffect, useState } from "react";
 import { getTermini } from "../../api/termini";
-import { dodajIzvestaj, getIzvestajiZaPacijenta } from "../../api/izvestaji";
+import {
+  dodajIzvestaj,
+  getIzvestajZaTermin,
+  izmeniIzvestaj,
+} from "../../api/izvestaji";
 import type { Termin, Izvestaj } from "../../types";
-import { useAuth } from "../../context/useAuth";
+import {
+  otvoriIzvestajKaoPdf,
+  sacuvajIzvestajKaoPdf,
+} from "../../utils/izvestajPdf";
+import "./Izvestaji.css";
 
 export default function IzvestajiStranica() {
   const [termini, setTermini] = useState<Termin[]>([]);
   const [izabraniTermin, setIzabraniTermin] = useState<Termin | null>(null);
-  const [istorija, setIstorija] = useState<Izvestaj[]>([]);
+  const [izvestajiPoTerminu, setIzvestajiPoTerminu] = useState<
+    Record<number, Izvestaj>
+  >({});
   const [ucitavanje, setUcitavanje] = useState(true);
   const [greska, setGreska] = useState("");
   const [poruka, setPoruka] = useState("");
-  const { logout } = useAuth();
-
   const [forma, setForma] = useState({
     dijagnoza: "",
     terapija: "",
@@ -26,8 +34,32 @@ export default function IzvestajiStranica() {
       setUcitavanje(true);
       try {
         const res = await getTermini();
-        if (!ignore)
-          setTermini(res.data.filter((t) => t.status === "ZAVRSENO"));
+        const zavrseni = res.data
+          .filter((t) => t.status === "ZAVRSENO")
+          .sort(
+            (a, b) =>
+              new Date(b.datumVreme).getTime() -
+              new Date(a.datumVreme).getTime(),
+          );
+        const rezultati = await Promise.all(
+          zavrseni.map(async (termin) => {
+            const izvestaj = await getIzvestajZaTermin(termin.id).catch(
+              () => null,
+            );
+            return izvestaj ? ([termin.id, izvestaj.data] as const) : null;
+          }),
+        );
+        if (!ignore) {
+          setTermini(zavrseni);
+          setIzvestajiPoTerminu(
+            Object.fromEntries(
+              rezultati.filter(
+                (rezultat): rezultat is readonly [number, Izvestaj] =>
+                  rezultat !== null,
+              ),
+            ),
+          );
+        }
       } catch {
         if (!ignore) setGreska("Greška pri učitavanju termina.");
       } finally {
@@ -43,15 +75,14 @@ export default function IzvestajiStranica() {
 
   const handleIzaberiTermin = async (termin: Termin) => {
     setIzabraniTermin(termin);
-    setForma({ dijagnoza: "", terapija: "", anamneza: "" });
+    const izvestaj = izvestajiPoTerminu[termin.id];
+    setForma({
+      dijagnoza: izvestaj?.dijagnoza || "",
+      terapija: izvestaj?.terapija || "",
+      anamneza: izvestaj?.anamneza || "",
+    });
     setPoruka("");
     setGreska("");
-    try {
-      const res = await getIzvestajiZaPacijenta(termin.pacijent.id);
-      setIstorija(res.data);
-    } catch {
-      setIstorija([]);
-    }
   };
 
   const handleUnos = async (e: React.FormEvent) => {
@@ -59,92 +90,109 @@ export default function IzvestajiStranica() {
     if (!izabraniTermin) return;
     setGreska("");
     try {
-      await dodajIzvestaj({
-        terminId: izabraniTermin.id,
-        dijagnoza: forma.dijagnoza,
-        terapija: forma.terapija,
-        anamneza: forma.anamneza,
-      });
-      setPoruka("Izveštaj uspešno sačuvan.");
-      setForma({ dijagnoza: "", terapija: "", anamneza: "" });
-      const res = await getIzvestajiZaPacijenta(izabraniTermin.pacijent.id);
-      setIstorija(res.data);
-    } catch {
-      setGreska(
-        "Greška pri čuvanju izveštaja (možda već postoji za ovaj termin).",
+      const postojeciIzvestaj = izvestajiPoTerminu[izabraniTermin.id];
+      const res = postojeciIzvestaj
+        ? await izmeniIzvestaj(postojeciIzvestaj.id, forma)
+        : await dodajIzvestaj({ terminId: izabraniTermin.id, ...forma });
+      setPoruka(
+        postojeciIzvestaj
+          ? "Izveštaj uspešno ažuriran."
+          : "Izveštaj uspešno sačuvan.",
       );
+      setIzvestajiPoTerminu({
+        ...izvestajiPoTerminu,
+        [izabraniTermin.id]: res.data,
+      });
+    } catch {
+      setGreska("Greška pri čuvanju izveštaja.");
     }
   };
 
   return (
-    <div style={{ maxWidth: 1000, margin: "40px auto", padding: 16 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2>Izveštaji sa pregleda</h2>
-        <button onClick={logout}>Odjavi se</button>
+    <div className="izvestaji-page">
+      <div className="izvestaji-header">
+        <div>
+          <p className="izvestaji-eyebrow">Medicinska dokumentacija</p>
+          <h2>Izveštaji sa pregleda</h2>
+          <p className="izvestaji-subtitle">
+            Unesite nalaz za završen pregled i sačuvajte ga kao PDF.
+          </p>
+        </div>
       </div>
 
-      {greska && <p style={{ color: "red" }}>{greska}</p>}
+      {greska && <p className="izvestaji-error">{greska}</p>}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 2fr",
-          gap: 24,
-          marginTop: 16,
-        }}
-      >
-        <div>
-          <h3>Završeni termini bez izveštaja</h3>
+      <div className="izvestaji-layout">
+        <section className="izvestaji-panel termini-panel">
+          <div className="izvestaji-panel-heading">
+            <div>
+              <p className="izvestaji-kicker">Pregledi</p>
+              <h3>Završeni termini</h3>
+            </div>
+            <span className="izvestaji-count">{termini.length}</span>
+          </div>
           {ucitavanje ? (
-            <p>Učitavanje...</p>
+            <p className="izvestaji-state">Učitavanje...</p>
           ) : termini.length === 0 ? (
-            <p>Nema završenih termina.</p>
+            <p className="izvestaji-state">Nema završenih termina.</p>
           ) : (
-            <ul style={{ listStyle: "none", padding: 0 }}>
+            <ul className="termini-lista">
               {termini.map((t) => (
                 <li
                   key={t.id}
                   onClick={() => handleIzaberiTermin(t)}
-                  style={{
-                    padding: 10,
-                    marginBottom: 6,
-                    border: "1px solid #ddd",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                    background:
-                      izabraniTermin?.id === t.id ? "#f0f4ff" : "white",
-                  }}
+                  className={`termin-item ${izabraniTermin?.id === t.id ? "termin-item-active" : ""}`}
                 >
-                  <strong>
+                  <strong className="termin-pacijent">
                     {t.pacijent.ime} {t.pacijent.prezime}
                   </strong>
-                  <br />
-                  {new Date(t.datumVreme).toLocaleString("sr-RS")} —{" "}
-                  {t.usluga.naziv}
+                  <span>{new Date(t.datumVreme).toLocaleString("sr-RS")}</span>
+                  <span className="termin-usluga">{t.usluga.naziv}</span>
+                  {izvestajiPoTerminu[t.id] && (
+                    <button
+                      type="button"
+                      className="izvestaj-dokument-link"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        otvoriIzvestajKaoPdf(
+                          izvestajiPoTerminu[t.id],
+                          t.pacijent,
+                          t,
+                        );
+                      }}
+                    >
+                      PDF dokument ·{" "}
+                      {new Date(t.datumVreme).toLocaleDateString("sr-RS")}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
           )}
-        </div>
+        </section>
 
-        <div>
+        <section className="izvestaji-panel izvestaj-editor">
           {izabraniTermin ? (
             <>
-              <h3>
-                Unos izveštaja — {izabraniTermin.pacijent.ime}{" "}
-                {izabraniTermin.pacijent.prezime}
-              </h3>
-              {poruka && <p style={{ color: "green" }}>{poruka}</p>}
-              <form onSubmit={handleUnos} style={{ marginBottom: 24 }}>
-                <div style={{ marginBottom: 8 }}>
-                  <label>Dijagnoza</label>
+              <div className="izvestaji-panel-heading">
+                <div>
+                  <p className="izvestaji-kicker">
+                    {izvestajiPoTerminu[izabraniTermin.id]
+                      ? "Izmena zapisa"
+                      : "Novi zapis"}
+                  </p>
+                  <h3>
+                    Unos izveštaja — {izabraniTermin.pacijent.ime}{" "}
+                    {izabraniTermin.pacijent.prezime}
+                  </h3>
+                </div>
+              </div>
+              {poruka && <p className="izvestaji-success">{poruka}</p>}
+              <form onSubmit={handleUnos} className="izvestaj-form">
+                <div className="izvestaj-field">
+                  <label htmlFor="dijagnoza">Dijagnoza</label>
                   <textarea
+                    id="dijagnoza"
                     value={forma.dijagnoza}
                     onChange={(e) =>
                       setForma({ ...forma, dijagnoza: e.target.value })
@@ -153,69 +201,60 @@ export default function IzvestajiStranica() {
                     style={{ width: "100%", minHeight: 60, padding: 8 }}
                   />
                 </div>
-                <div style={{ marginBottom: 8 }}>
-                  <label>Terapija</label>
+                <div className="izvestaj-field">
+                  <label htmlFor="terapija">Terapija</label>
                   <textarea
+                    id="terapija"
                     value={forma.terapija}
                     onChange={(e) =>
                       setForma({ ...forma, terapija: e.target.value })
                     }
-                    style={{ width: "100%", minHeight: 60, padding: 8 }}
                   />
                 </div>
-                <div style={{ marginBottom: 8 }}>
-                  <label>Anamneza</label>
+                <div className="izvestaj-field">
+                  <label htmlFor="anamneza">Anamneza</label>
                   <textarea
+                    id="anamneza"
                     value={forma.anamneza}
                     onChange={(e) =>
                       setForma({ ...forma, anamneza: e.target.value })
                     }
-                    style={{ width: "100%", minHeight: 60, padding: 8 }}
                   />
                 </div>
-                <button type="submit">Sačuvaj izveštaj</button>
-              </form>
-
-              <h3>Istorija pregleda pacijenta</h3>
-              {istorija.length === 0 ? (
-                <p>Nema ranijih izveštaja.</p>
-              ) : (
-                <ul style={{ listStyle: "none", padding: 0 }}>
-                  {istorija.map((iz) => (
-                    <li
-                      key={iz.id}
-                      style={{
-                        border: "1px solid #eee",
-                        borderRadius: 6,
-                        padding: 10,
-                        marginBottom: 8,
-                      }}
+                <div className="izvestaj-form-footer">
+                  <button type="submit" className="izvestaj-primary-button">
+                    {izvestajiPoTerminu[izabraniTermin.id]
+                      ? "Ažuriraj izveštaj"
+                      : "Sačuvaj izveštaj"}
+                  </button>
+                  {izvestajiPoTerminu[izabraniTermin.id] && (
+                    <button
+                      type="button"
+                      className="izvestaj-pdf-button"
+                      onClick={() =>
+                        sacuvajIzvestajKaoPdf(
+                          izvestajiPoTerminu[izabraniTermin.id],
+                          izabraniTermin.pacijent,
+                          izabraniTermin,
+                        )
+                      }
                     >
-                      <div style={{ fontSize: 13, color: "#666" }}>
-                        {new Date(iz.kreiranoAt).toLocaleString("sr-RS")} —{" "}
-                        {formatDoctorName(
-                          iz.dermatolog.ime,
-                          iz.dermatolog.prezime,
-                          "DERMATOLOG",
-                        )}
-                      </div>
-                      <div>
-                        <strong>Dijagnoza:</strong> {iz.dijagnoza}
-                      </div>
-                      {iz.terapija && (
-                        <div>
-                          <strong>Terapija:</strong> {iz.terapija}
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
+                      Preuzmi PDF
+                    </button>
+                  )}
+                </div>
+              </form>
             </>
           ) : (
-            <p>Izaberite termin sa leve strane da unesete izveštaj.</p>
+            <div className="izvestaji-empty">
+              <span className="izvestaji-empty-icon">+</span>
+              <h3>Izaberite termin</h3>
+              <p>
+                Odaberite završeni termin sa leve strane da unesete izveštaj.
+              </p>
+            </div>
           )}
-        </div>
+        </section>
       </div>
     </div>
   );
