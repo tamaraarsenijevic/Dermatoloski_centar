@@ -15,4 +15,7 @@ export const dodajZaposlenog = (data: {
 export const izmeniZaposlenog = (id: number, data: Partial<Zaposleni>) =>
   http.put<Zaposleni>(`/zaposleni/${id}`, data);
 
-export const obrisiZaposlenog = (id: number) => http.delete(`/zaposleni/${id}`);
+export const obrisiZaposlenog = (id: number, force = false) =>
+  http.delete(`/zaposleni/${id}`, {
+    params: force ? { force: true } : undefined,
+  });

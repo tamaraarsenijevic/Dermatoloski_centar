@@ -1,10 +1,10 @@
-.dermatolog-layout {
+.admin-layout {
   min-height: 100vh;
   display: flex;
   color: #0f172a;
 }
 
-.dermatolog-sidebar {
+.admin-sidebar {
   position: fixed;
   top: 0;
   bottom: 0;
@@ -20,7 +20,7 @@
   border-right: 1px solid #e2e8f0;
 }
 
-.sidebar-brand {
+.admin-brand {
   display: flex;
   align-items: center;
   gap: 11px;
@@ -28,40 +28,47 @@
   margin-bottom: 52px;
   color: #0f172a;
 }
-.sidebar-brand-icon {
+
+.admin-brand-icon {
   width: 34px;
   height: 34px;
   display: grid;
   place-items: center;
   border-radius: 10px;
-  background: #0284c7;
-  color: white;
-  font-size: 20px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font-size: 16px;
 }
-.sidebar-brand strong,
-.sidebar-brand span {
+
+.admin-brand strong,
+.admin-brand span {
   display: block;
   line-height: 1.15;
 }
-.sidebar-brand strong {
+
+.admin-brand strong {
   font-size: 14px;
 }
-.sidebar-brand span {
-  color: #0284c7;
+
+.admin-brand span {
+  color: #1d4ed8;
   font-size: 14px;
   font-weight: 700;
 }
-.sidebar-label {
+
+.admin-label {
   margin: 0 12px 12px;
   color: #94a3b8;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1.4px;
 }
-.sidebar-nav {
+
+.admin-nav {
   flex: 1;
 }
-.sidebar-link {
+
+.admin-link {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -76,8 +83,9 @@
     background-color 0.2s,
     color 0.2s;
 }
-.sidebar-link svg,
-.sidebar-logout svg {
+
+.admin-link svg,
+.admin-logout svg {
   width: 19px;
   height: 19px;
   fill: none;
@@ -86,54 +94,64 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.sidebar-link:hover {
-  color: #0284c7;
-  background: #f0f9ff;
+
+.admin-link:hover {
+  color: #1d4ed8;
+  background: #eff6ff;
 }
-.sidebar-link.active {
-  color: #0369a1;
-  background: #e0f2fe;
+
+.admin-link.active {
+  color: #1e40af;
+  background: #dbeafe;
 }
-.sidebar-bottom {
+
+.admin-bottom {
   border-top: 1px solid #e2e8f0;
   padding-top: 18px;
 }
-.sidebar-user {
+
+.admin-user {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 0 8px 18px;
 }
-.sidebar-avatar {
+
+.admin-avatar {
   width: 35px;
   height: 35px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #e0f2fe;
-  color: #0369a1;
+  background: #dbeafe;
+  color: #1e40af;
   font-size: 12px;
   font-weight: 700;
 }
-.sidebar-user-details {
+
+.admin-user-details {
   min-width: 0;
 }
-.sidebar-user-details strong,
-.sidebar-user-details span {
+
+.admin-user-details strong,
+.admin-user-details span {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sidebar-user-details strong {
+
+.admin-user-details strong {
   font-size: 12px;
 }
-.sidebar-user-details span {
+
+.admin-user-details span {
   margin-top: 3px;
   color: #94a3b8;
   font-size: 11px;
 }
-.sidebar-logout {
+
+.admin-logout {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -148,21 +166,24 @@
   cursor: pointer;
   text-align: left;
 }
-.sidebar-logout:hover {
+
+.admin-logout:hover {
   background: #fef2f2;
   color: #dc2626;
 }
-.dermatolog-content {
+
+.admin-content {
   flex: 1;
   min-width: 0;
   margin-left: 248px;
 }
 
 @media (max-width: 700px) {
-  .dermatolog-layout {
+  .admin-layout {
     display: block;
   }
-  .dermatolog-sidebar {
+
+  .admin-sidebar {
     position: static;
     width: 100%;
     height: auto;
@@ -170,44 +191,50 @@
     border-right: 0;
     border-bottom: 1px solid #e2e8f0;
   }
-  .sidebar-brand {
+
+  .admin-brand {
     margin-bottom: 16px;
   }
 
-  .dermatolog-content {
+  .admin-content {
     margin-left: 0;
   }
-  .sidebar-nav {
+
+  .admin-nav {
     display: flex;
     align-items: center;
     gap: 4px;
     overflow-x: auto;
   }
-  .sidebar-label {
+
+  .admin-label {
     display: none;
   }
-  .sidebar-link {
+
+  .admin-link {
     margin: 0;
     white-space: nowrap;
   }
-  .sidebar-bottom {
+
+  .admin-bottom {
     display: flex;
     align-items: center;
     gap: 12px;
     border-top: 0;
     padding-top: 12px;
   }
-  .sidebar-user {
+
+  .admin-user {
     flex: 1;
     padding: 0;
   }
-  .sidebar-logout {
+
+  .admin-logout {
     width: auto;
-  }
-  .sidebar-logout svg {
-    flex: 0 0 auto;
-  }
-  .sidebar-logout {
     font-size: 0;
+  }
+
+  .admin-logout svg {
+    flex: 0 0 auto;
   }
 }

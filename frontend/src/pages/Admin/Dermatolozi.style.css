@@ -348,6 +348,42 @@
   padding: 24px;
 }
 
+.message-modal-content {
+  max-width: 480px;
+}
+
+.message-modal-body {
+  padding: 24px;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.message-modal-body p {
+  margin: 0;
+}
+
+.message-modal-body p + p {
+  margin-top: 12px;
+}
+
+.btn-danger {
+  background-color: #dc2626;
+  color: #ffffff;
+  border: 1px solid #dc2626;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -392,7 +428,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding-top: 16px;
+  padding: 10px;
   border-top: 1px solid #e2e8f0;
 }
 

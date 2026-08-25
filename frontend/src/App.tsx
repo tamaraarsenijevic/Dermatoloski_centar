@@ -2,12 +2,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Pocetna from "./pages/Pocetna";
 import ProtectedRoute from "./components/ProtectedRoute";
-import DermatolozeLista from "./pages/Admin/Dermatolozi";
+import Dermatolozi from "./pages/Admin/Dermatolozi";
 import Pacijenti from "./pages/Dermatolog/Pacijenti";
 import Termini from "./pages/Dermatolog/Termini";
 import Izvestaji from "./pages/Dermatolog/IzvestajiStranica";
 import PublicRoute from "./router/PublicRoute/PublicRoute";
 import DermatologLayout from "./components/DermatologLayout";
+import Usluge from "./pages/Admin/Usluge";
+import AdminLayout from "./components/AdminLayout";
 
 function App() {
   return (
@@ -26,7 +28,19 @@ function App() {
           path="/admin/dermatolozi"
           element={
             <ProtectedRoute dozvoljeneUloge={["ADMIN"]}>
-              <DermatolozeLista />
+              <AdminLayout>
+                <Dermatolozi />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/usluge"
+          element={
+            <ProtectedRoute dozvoljeneUloge={["ADMIN"]}>
+              <AdminLayout>
+                <Usluge />
+              </AdminLayout>
             </ProtectedRoute>
           }
         />
