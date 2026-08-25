@@ -2,11 +2,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Pocetna from "./pages/Pocetna";
 import ProtectedRoute from "./components/ProtectedRoute";
-import DermatolozeLista from "./pages/Admin/DermatolozeLista";
+import DermatolozeLista from "./pages/Admin/Dermatolozi";
 import Pacijenti from "./pages/Dermatolog/Pacijenti";
 import Termini from "./pages/Dermatolog/Termini";
 import Izvestaji from "./pages/Dermatolog/IzvestajiStranica";
 import PublicRoute from "./router/PublicRoute/PublicRoute";
+import DermatologLayout from "./components/DermatologLayout";
 
 function App() {
   return (
@@ -33,7 +34,9 @@ function App() {
           path="/pacijenti"
           element={
             <ProtectedRoute dozvoljeneUloge={["DERMATOLOG"]}>
-              <Pacijenti />
+              <DermatologLayout>
+                <Pacijenti />
+              </DermatologLayout>
             </ProtectedRoute>
           }
         />
@@ -41,7 +44,9 @@ function App() {
           path="/termini"
           element={
             <ProtectedRoute dozvoljeneUloge={["DERMATOLOG"]}>
-              <Termini />
+              <DermatologLayout>
+                <Termini />
+              </DermatologLayout>
             </ProtectedRoute>
           }
         />
@@ -49,7 +54,9 @@ function App() {
           path="/izvestaji"
           element={
             <ProtectedRoute dozvoljeneUloge={["DERMATOLOG"]}>
-              <Izvestaji />
+              <DermatologLayout>
+                <Izvestaji />
+              </DermatologLayout>
             </ProtectedRoute>
           }
         />
