@@ -18,13 +18,13 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 12px;
-  color: #0284c7;
+  color: var(--color-ink);
   font-weight: 700;
 }
 
 .pacijenti-subtitle {
   margin: 8px 0 0;
-  color: #64748b;
+  color: var(--color-disabled);
   max-width: 680px;
 }
 
@@ -33,8 +33,8 @@
   border: 0;
   border-radius: 8px;
   padding: 11px 16px;
-  background: #1d4ed8;
-  color: #fff;
+  background: var(--color-accent-strong);
+  color: var(--color-surface);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -47,8 +47,8 @@
 .pacijenti-add-button:hover,
 .pacijenti-submit-button:hover {
   transform: translateY(-1px);
-  background: #1e40af;
-  box-shadow: 0 10px 20px rgba(30, 64, 175, 0.25);
+  background: var(--color-success);
+  box-shadow: 0 10px 20px rgba(116, 139, 123, 0.25);
 }
 
 .pacijenti-toolbar {
@@ -57,31 +57,32 @@
 
 .pacijenti-search {
   width: min(100%, 420px);
+  height: 10px;
   padding: 12px 13px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-surface);
   font: inherit;
 }
 
 .pacijenti-search:focus {
-  outline: 2px solid #93c5fd;
-  border-color: #2563eb;
+  outline: 2px solid var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .pacijenti-error {
-  color: #b42318;
+  color: var(--color-danger);
 }
 
 .pacijenti-state {
-  color: #475569;
+  color: var(--color-disabled);
 }
 
 .pacijenti-table-wrap {
   overflow: auto;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  background: var(--color-surface);
 }
 
 .pacijenti-table {
@@ -94,15 +95,15 @@
 .pacijenti-table td {
   text-align: left;
   padding: 13px 14px;
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid var(--color-border-soft);
 }
 
 .pacijenti-table thead th {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #475569;
-  background: #f8fafc;
+  color: var(--color-surface);
+  background: var(--color-accent-strong);
 }
 
 .pacijenti-row-clickable {
@@ -111,7 +112,7 @@
 }
 
 .pacijenti-row-clickable:hover {
-  background: #eff6ff;
+  background: var(--color-accent-soft);
 }
 
 .pacijenti-col-action,
@@ -120,7 +121,7 @@
 }
 
 .pacijenti-cell-action {
-  color: #1d4ed8;
+  color: var(--color-accent-strong);
   font-weight: 700;
 }
 
@@ -132,7 +133,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(51, 61, 62, 0.5);
   backdrop-filter: blur(4px);
 }
 
@@ -141,10 +142,10 @@
   max-height: calc(100vh - 40px);
   overflow-y: auto;
   border-radius: 16px;
-  background: #fff;
+  background: var(--color-surface);
   box-shadow:
-    0 24px 30px -8px rgba(15, 23, 42, 0.24),
-    0 8px 16px -8px rgba(15, 23, 42, 0.18);
+    0 24px 30px -8px rgba(51, 61, 62, 0.24),
+    0 8px 16px -8px rgba(51, 61, 62, 0.18);
 }
 
 .pacijenti-modal-header {
@@ -152,7 +153,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 18px 24px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .pacijenti-modal-header h2 {
@@ -163,14 +164,14 @@
 .pacijenti-modal-close {
   border: 0;
   background: none;
-  color: #94a3b8;
+  color: var(--color-disabled);
   font-size: 24px;
   line-height: 1;
   cursor: pointer;
 }
 
 .pacijenti-modal-close:hover {
-  color: #0f172a;
+  color: var(--color-ink);
 }
 
 .pacijenti-form {
@@ -191,7 +192,7 @@
 
 .pacijenti-field label {
   font-size: 12px;
-  color: #475569;
+  color: var(--color-disabled);
   font-weight: 700;
 }
 
@@ -200,7 +201,7 @@
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 11px 12px;
   font: inherit;
@@ -212,8 +213,8 @@
 
 .pacijenti-field input:focus,
 .pacijenti-field textarea:focus {
-  outline: 2px solid #93c5fd;
-  border-color: #2563eb;
+  outline: 2px solid var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .pacijenti-field-wide {
@@ -226,7 +227,7 @@
   gap: 10px;
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--color-border);
 }
 
 .pacijenti-cancel-button,
@@ -234,10 +235,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #f8fafc;
-  color: #334155;
+  background: var(--color-surface);
+  color: var(--color-ink);
   text-decoration: none;
   font: inherit;
   font-weight: 700;
@@ -247,7 +248,7 @@
 
 .pacijenti-cancel-button:hover,
 .pacijenti-back-link:hover {
-  background: #e2e8f0;
+  background: var(--color-border);
 }
 
 .pacijent-detalji-page {
@@ -263,9 +264,9 @@
 }
 
 .pacijent-info-card {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-surface);
   padding: 16px;
 }
 
@@ -281,18 +282,18 @@
 
 .pacijent-info-card dt {
   font-size: 12px;
-  color: #64748b;
+  color: var(--color-disabled);
 }
 
 .pacijent-info-card dd {
   margin: 3px 0 0;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-ink);
 }
 
 .pacijent-info-card p {
   margin: 0;
-  color: #334155;
+  color: var(--color-ink);
 }
 
 .pacijent-info-card-wide {
@@ -317,18 +318,18 @@
 }
 
 .termin-status-zakazano {
-  color: #1d4ed8;
-  background: #dbeafe;
+  color: var(--color-ink);
+  background: var(--color-accent-soft);
 }
 
 .termin-status-zavrseno {
-  color: #065f46;
-  background: #d1fae5;
+  color: var(--color-success);
+  background: var(--color-success-light);
 }
 
 .termin-status-otkazano {
-  color: #991b1b;
-  background: #fee2e2;
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
 }
 
 .pacijent-izvestaji-lista {
@@ -337,21 +338,21 @@
 }
 
 .pacijent-izvestaj-card {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: #fff;
+  background: var(--color-surface);
   padding: 14px;
 }
 
 .pacijent-izvestaj-card p {
   margin: 8px 0 0;
-  color: #1e293b;
+  color: var(--color-ink);
 }
 
 .pacijent-izvestaj-meta,
 .pacijent-izvestaj-termin {
   margin: 0;
-  color: #475569;
+  color: var(--color-disabled);
   font-size: 13px;
 }
 
@@ -360,15 +361,15 @@
   justify-content: flex-end;
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid #edf2f7;
+  border-top: 1px solid var(--color-border-soft);
 }
 
 .pacijent-izvestaj-pdf-button {
-  border: 1px solid #bae6fd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 9px 13px;
-  background: #f0f9ff;
-  color: #0369a1;
+  background: var(--color-accent-soft);
+  color: var(--color-ink);
   font: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -376,7 +377,7 @@
 }
 
 .pacijent-izvestaj-pdf-button:hover {
-  background: #e0f2fe;
+  background: var(--color-accent-soft);
 }
 
 @media (max-width: 900px) {

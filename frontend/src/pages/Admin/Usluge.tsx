@@ -109,7 +109,6 @@ export default function UslugeLista() {
     <div className="usluge-page">
       <div className="usluge-header">
         <div>
-          <p className="usluge-eyebrow">Administracija</p>
           <h2>Cenovnik usluga</h2>
           <p className="usluge-subtitle">
             Upravljajte pregledom, cenama i trajanjem dermatoloških usluga.

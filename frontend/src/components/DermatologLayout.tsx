@@ -52,15 +52,14 @@ export default function DermatologLayout({ children }: Props) {
     <div className="dermatolog-layout">
       <aside className="dermatolog-sidebar">
         <div className="sidebar-brand">
-          <div className="sidebar-brand-icon">✦</div>
-          <div>
-            <strong>Dermatološki</strong>
-            <span>Centar</span>
-          </div>
+          <img
+            className="sidebar-brand-logo"
+            src="/logo.png"
+            alt="Dermatološki Centar"
+          />
         </div>
 
         <nav className="sidebar-nav" aria-label="Glavna navigacija">
-          <p className="sidebar-label">MENI</p>
           {navItems.map((item) => (
             <NavLink
               key={item.path}

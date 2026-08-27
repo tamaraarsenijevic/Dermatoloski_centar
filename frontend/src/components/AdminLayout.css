@@ -1,7 +1,7 @@
 .admin-layout {
   min-height: 100vh;
   display: flex;
-  color: #0f172a;
+  color: var(--color-ink);
 }
 
 .admin-sidebar {
@@ -16,8 +16,8 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  border-right: 1px solid #e2e8f0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
 }
 
 .admin-brand {
@@ -25,19 +25,15 @@
   align-items: center;
   gap: 11px;
   padding: 0 12px;
-  margin-bottom: 52px;
-  color: #0f172a;
+  margin-bottom: 20px;
+  color: var(--color-ink);
 }
 
-.admin-brand-icon {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  background: #1d4ed8;
-  color: #ffffff;
-  font-size: 16px;
+.admin-brand-logo {
+  width: 100px;
+  height: 100px;
+  margin-left: 35px;
+  object-fit: contain;
 }
 
 .admin-brand strong,
@@ -51,14 +47,14 @@
 }
 
 .admin-brand span {
-  color: #1d4ed8;
+  color: var(--color-accent);
   font-size: 14px;
   font-weight: 700;
 }
 
 .admin-label {
   margin: 0 12px 12px;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 1.4px;
@@ -75,7 +71,7 @@
   margin: 4px 0;
   padding: 12px;
   border-radius: 8px;
-  color: #64748b;
+  color: var(--color-muted);
   text-decoration: none;
   font-size: 14px;
   font-weight: 600;
@@ -96,17 +92,15 @@
 }
 
 .admin-link:hover {
-  color: #1d4ed8;
-  background: #eff6ff;
+  background: var(--color-accent-soft);
 }
 
 .admin-link.active {
-  color: #1e40af;
-  background: #dbeafe;
+  background: var(--color-accent-soft);
 }
 
 .admin-bottom {
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--color-border);
   padding-top: 18px;
 }
 
@@ -123,8 +117,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
   font-size: 12px;
   font-weight: 700;
 }
@@ -147,7 +141,7 @@
 
 .admin-user-details span {
   margin-top: 3px;
-  color: #94a3b8;
+  color: var(--color-muted);
   font-size: 11px;
 }
 
@@ -160,7 +154,7 @@
   border: 0;
   border-radius: 8px;
   background: transparent;
-  color: #64748b;
+  color: var(--color-muted);
   font: inherit;
   font-size: 14px;
   cursor: pointer;
@@ -168,8 +162,8 @@
 }
 
 .admin-logout:hover {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--color-surface) 1f2;
+  color: var(--color-danger);
 }
 
 .admin-content {
@@ -189,7 +183,7 @@
     height: auto;
     padding: 14px 16px;
     border-right: 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border);
   }
 
   .admin-brand {

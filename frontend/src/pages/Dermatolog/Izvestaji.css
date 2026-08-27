@@ -10,14 +10,14 @@
 
 .izvestaji-header h2 {
   margin: 0;
-  color: #172033;
+  color: var(--color-ink);
   font-size: 28px;
 }
 
 .izvestaji-eyebrow,
 .izvestaji-kicker {
   margin: 0 0 6px;
-  color: #0284c7;
+  color: var(--color-accent);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1px;
@@ -27,7 +27,7 @@
 .izvestaji-subtitle {
   max-width: 680px;
   margin: 8px 0 0;
-  color: #64748b;
+  color: var(--color-disabled);
 }
 
 .izvestaji-error,
@@ -38,13 +38,13 @@
 }
 
 .izvestaji-error {
-  color: #b42318;
-  background: #fef2f2;
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
 }
 
 .izvestaji-success {
-  color: #065f46;
-  background: #ecfdf5;
+  color: var(--color-success);
+  background: var(--color-success-soft);
 }
 
 .izvestaji-layout {
@@ -56,9 +56,9 @@
 
 .izvestaji-panel {
   min-width: 0;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  background: var(--color-surface);
   padding: 18px;
 }
 
@@ -74,7 +74,7 @@
 .izvestaji-panel-heading h3,
 .istorija-heading h3 {
   margin: 0;
-  color: #172033;
+  color: var(--color-ink);
 }
 
 .izvestaji-count {
@@ -83,8 +83,8 @@
   height: 28px;
   place-items: center;
   border-radius: 50%;
-  background: #e0f2fe;
-  color: #0369a1;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
   font-size: 12px;
   font-weight: 700;
 }
@@ -102,9 +102,9 @@
   display: grid;
   gap: 4px;
   padding: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  color: #64748b;
+  color: var(--color-disabled);
   cursor: pointer;
   font-size: 13px;
   transition:
@@ -118,10 +118,10 @@
   width: 100%;
   margin-top: 8px;
   padding: 8px 10px;
-  border: 1px solid #bae6fd;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: #f0f9ff;
-  color: #0369a1;
+  background: var(--color-accent-soft);
+  color: var(--color-ink);
   text-align: left;
   font: inherit;
   font-size: 12px;
@@ -130,27 +130,25 @@
 }
 
 .izvestaj-dokument-link:hover {
-  background: #e0f2fe;
+  background: var(--color-accent-soft);
 }
 
 .termin-item:hover {
-  border-color: #7dd3fc;
-  background: #f0f9ff;
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
   transform: translateY(-1px);
 }
 
 .termin-item-active {
-  border-color: #38bdf8;
-  background: #e0f2fe;
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
 }
 
 .termin-pacijent {
-  color: #172033;
   font-size: 14px;
 }
 
 .termin-usluga {
-  color: #0369a1;
   font-weight: 600;
 }
 
@@ -167,7 +165,7 @@
 }
 
 .izvestaj-field label {
-  color: #475569;
+  color: var(--color-disabled);
   font-size: 12px;
   font-weight: 700;
 }
@@ -177,16 +175,16 @@
   width: 100%;
   min-height: 92px;
   padding: 11px 12px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  color: #172033;
+  color: var(--color-ink);
   font: inherit;
   resize: vertical;
 }
 
 .izvestaj-field textarea:focus {
-  outline: 2px solid #93c5fd;
-  border-color: #2563eb;
+  outline: 2px solid var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .izvestaj-form-footer {
@@ -208,38 +206,38 @@
 }
 
 .izvestaj-primary-button {
-  background: #1d4ed8;
-  color: #fff;
+  background: var(--color-accent-strong);
+  color: var(--color-surface);
 }
 
 .izvestaj-primary-button:hover {
-  background: #1e40af;
+  background: var(--color-success);
 }
 
 .istorija-heading {
   margin-top: 28px;
   padding-top: 18px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--color-border);
 }
 
 .istorija-heading span,
 .istorija-meta {
-  color: #64748b;
+  color: var(--color-disabled);
   font-size: 12px;
 }
 
 .istorija-item {
   flex-wrap: wrap;
   padding: 13px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .istorija-sadrzaj {
   flex: 1 1 300px;
   min-width: 0;
-  color: #1e293b;
+  color: var(--color-ink);
   line-height: 1.55;
 }
 
@@ -253,17 +251,17 @@
 
 .izvestaj-pdf-button {
   flex: 0 0 auto;
-  border: 1px solid #bae6fd;
-  background: #f0f9ff;
-  color: #0369a1;
+  border: 1px solid var(--color-border);
+  background: var(--color-accent-soft);
+  color: var(--color-ink);
 }
 
 .izvestaj-pdf-button:hover {
-  background: #e0f2fe;
+  background: var(--color-accent-soft);
 }
 
 .izvestaji-state {
-  color: #64748b;
+  color: var(--color-disabled);
 }
 
 .izvestaji-empty {
@@ -272,12 +270,12 @@
   place-content: center;
   justify-items: center;
   text-align: center;
-  color: #64748b;
+  color: var(--color-disabled);
 }
 
 .izvestaji-empty h3 {
   margin: 14px 0 4px;
-  color: #172033;
+  color: var(--color-ink);
 }
 
 .izvestaji-empty p {
@@ -291,8 +289,8 @@
   height: 42px;
   place-items: center;
   border-radius: 50%;
-  background: #e0f2fe;
-  color: #0284c7;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
   font-size: 26px;
   font-weight: 300;
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getTermini, zakaziTermin, izmeniTermin } from "../../api/termini";
+import { getTermini, zakaziTermin } from "../../api/termini";
 import { getPacijenti } from "../../api/pacijenti";
 import { getUsluge } from "../../api/usluge";
 import type { Termin, Pacijent, Usluga } from "../../types";
@@ -166,24 +166,6 @@ export default function Termini() {
         ? error.response?.data?.greska
         : undefined;
       setGreska(poruka || "Greška pri zakazivanju termina.");
-    }
-  };
-
-  const handleOznaciZavrsen = async (id: number) => {
-    try {
-      await izmeniTermin(id, { status: "ZAVRSENO" });
-      ucitajSve();
-    } catch {
-      setGreska("Greška pri izmeni statusa.");
-    }
-  };
-
-  const handleOtkazi = async (id: number) => {
-    try {
-      await izmeniTermin(id, { status: "OTKAZANO" });
-      ucitajSve();
-    } catch {
-      setGreska("Greška pri otkazivanju.");
     }
   };
 
@@ -382,26 +364,6 @@ export default function Termini() {
                       <div className="termin-pacijent">
                         {t.pacijent.ime} {t.pacijent.prezime}
                       </div>
-                      {t.status === "ZAKAZANO" && (
-                        <div className="termin-akcije">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOznaciZavrsen(t.id);
-                            }}
-                          >
-                            Završi
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOtkazi(t.id);
-                            }}
-                          >
-                            Otkaži
-                          </button>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
@@ -417,16 +379,15 @@ export default function Termini() {
     <div className="termini-stranica">
       <div className="termini-zaglavlje">
         <h2>Termini</h2>
+        <button
+          onClick={() => setPrikaziForm(!prikaziForm)}
+          className="dugme-zakazi"
+        >
+          + Zakaži termin
+        </button>
       </div>
 
       {greska && <p className="termini-greska">{greska}</p>}
-
-      <button
-        onClick={() => setPrikaziForm(!prikaziForm)}
-        className="dugme-zakazi"
-      >
-        + Zakaži termin
-      </button>
 
       {prikaziForm && (
         <div
