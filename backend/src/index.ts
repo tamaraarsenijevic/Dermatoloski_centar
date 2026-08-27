@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import prisma from "./prisma.js";
-import { Uloga } from "@prisma/client";
+import { Prisma, Uloga } from "@prisma/client";
 
 dotenv.config();
 
@@ -302,10 +302,11 @@ const dermatologImaPreklapanje = async (
   datumVreme: Date,
   trajanjeMin: number,
   izuzmiTerminId?: number,
+  db: Prisma.TransactionClient | typeof prisma = prisma,
 ): Promise<boolean> => {
   const pocetakNovog = datumVreme.getTime();
   const krajNovog = pocetakNovog + trajanjeMin * 60 * 1000;
-  const postojeciTermini = await prisma.termin.findMany({
+  const postojeciTermini = await db.termin.findMany({
     where: {
       dermatologId,
       status: "ZAKAZANO",
@@ -348,40 +349,57 @@ app.post(
       req.body;
     try {
       const pocetak = new Date(datumVreme);
-      const usluga = await prisma.usluga.findUnique({
-        where: { id: Number(uslugaId) },
-        select: { trajanjeMin: true },
-      });
+      const novTermin = await prisma.$transaction(
+        async (tx) => {
+          const usluga = await tx.usluga.findUnique({
+            where: { id: Number(uslugaId) },
+            select: { trajanjeMin: true },
+          });
 
-      if (Number.isNaN(pocetak.getTime()) || !usluga) {
+          if (Number.isNaN(pocetak.getTime()) || !usluga) {
+            throw new Error("NEISPRAVAN_TERMIN");
+          }
+
+          if (
+            await dermatologImaPreklapanje(
+              Number(dermatologId),
+              pocetak,
+              usluga.trajanjeMin,
+              undefined,
+              tx,
+            )
+          ) {
+            throw new Error("PREKLAPANJE_TERMINA");
+          }
+
+          return tx.termin.create({
+            data: {
+              datumVreme: pocetak,
+              pacijentId: Number(pacijentId),
+              dermatologId: Number(dermatologId),
+              uslugaId: Number(uslugaId),
+              napomena,
+            },
+          });
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+      res.status(201).json(novTermin);
+    } catch (error) {
+      if (error instanceof Error && error.message === "NEISPRAVAN_TERMIN") {
         res.status(400).json({ greska: "Datum ili usluga nisu ispravni." });
         return;
       }
-
       if (
-        await dermatologImaPreklapanje(
-          Number(dermatologId),
-          pocetak,
-          usluga.trajanjeMin,
-        )
+        error instanceof Error &&
+        (error.message === "PREKLAPANJE_TERMINA" ||
+          (error as Prisma.PrismaClientKnownRequestError).code === "P2034")
       ) {
         res.status(409).json({
           greska: "Ne možete zakazati termin, u tom terminu je zakazan drugi.",
         });
         return;
       }
-
-      const novTermin = await prisma.termin.create({
-        data: {
-          datumVreme: pocetak,
-          pacijentId: Number(pacijentId),
-          dermatologId: Number(dermatologId),
-          uslugaId: Number(uslugaId),
-          napomena,
-        },
-      });
-      res.status(201).json(novTermin);
-    } catch (error) {
       res.status(400).json({ greska: "Neuspešno zakazivanje termina." });
     }
   },
@@ -398,51 +416,68 @@ app.put(
 
     try {
       const terminId = Number(id);
-      const postojeciTermin = await prisma.termin.findUnique({
-        where: { id: terminId },
-        include: { usluga: { select: { trajanjeMin: true } } },
-      });
+      const izmenjen = await prisma.$transaction(
+        async (tx) => {
+          const postojeciTermin = await tx.termin.findUnique({
+            where: { id: terminId },
+            include: { usluga: { select: { trajanjeMin: true } } },
+          });
 
-      if (!postojeciTermin) {
+          if (!postojeciTermin) throw new Error("TERMIN_NIJE_PRONADJEN");
+
+          const noviPocetak = datumVreme
+            ? new Date(datumVreme)
+            : postojeciTermin.datumVreme;
+          const noviStatus = status ?? postojeciTermin.status;
+
+          if (Number.isNaN(noviPocetak.getTime())) {
+            throw new Error("NEISPRAVAN_DATUM");
+          }
+
+          if (
+            noviStatus === "ZAKAZANO" &&
+            (await dermatologImaPreklapanje(
+              postojeciTermin.dermatologId,
+              noviPocetak,
+              postojeciTermin.usluga.trajanjeMin,
+              terminId,
+              tx,
+            ))
+          ) {
+            throw new Error("PREKLAPANJE_TERMINA");
+          }
+
+          return tx.termin.update({
+            where: { id: terminId },
+            data: {
+              ...(datumVreme && { datumVreme: noviPocetak }),
+              ...(status && { status }),
+              ...(napomena !== undefined && { napomena }),
+            },
+          });
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+      res.json(izmenjen);
+    } catch (error) {
+      if (error instanceof Error && error.message === "TERMIN_NIJE_PRONADJEN") {
         res.status(404).json({ greska: "Termin nije pronađen." });
         return;
       }
-
-      const noviPocetak = datumVreme
-        ? new Date(datumVreme)
-        : postojeciTermin.datumVreme;
-      const noviStatus = status ?? postojeciTermin.status;
-
-      if (Number.isNaN(noviPocetak.getTime())) {
+      if (error instanceof Error && error.message === "NEISPRAVAN_DATUM") {
         res.status(400).json({ greska: "Datum termina nije ispravan." });
         return;
       }
-
       if (
-        noviStatus === "ZAKAZANO" &&
-        (await dermatologImaPreklapanje(
-          postojeciTermin.dermatologId,
-          noviPocetak,
-          postojeciTermin.usluga.trajanjeMin,
-          terminId,
-        ))
+        error instanceof Error &&
+        (error.message === "PREKLAPANJE_TERMINA" ||
+          (error as Prisma.PrismaClientKnownRequestError).code === "P2034")
       ) {
         res.status(409).json({
           greska: "Ne možete zakazati termin, u tom terminu je zakazan drugi.",
         });
         return;
       }
-
-      const izmenjen = await prisma.termin.update({
-        where: { id: terminId },
-        data: {
-          ...(datumVreme && { datumVreme: noviPocetak }),
-          ...(status && { status }),
-          ...(napomena !== undefined && { napomena }),
-        },
-      });
-      res.json(izmenjen);
-    } catch (error) {
       res.status(400).json({ greska: "Neuspešna izmena termina." });
     }
   },

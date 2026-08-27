@@ -118,7 +118,9 @@ export default function TerminDetalji() {
     return (
       <div className="termin-detalji">
         <p className="termin-detalji-greska">Termin nije pronađen.</p>
-        <Link to="/termini">Nazad na termine</Link>
+        <Link to="/termini" className="termin-detalji-back">
+          Nazad na termine
+        </Link>
       </div>
     );
   }
@@ -132,7 +134,9 @@ export default function TerminDetalji() {
     return (
       <div className="termin-detalji">
         <p className="termin-detalji-greska">{greska}</p>
-        <Link to="/termini">Nazad na termine</Link>
+        <Link to="/termini" className="termin-detalji-back">
+          Nazad na termine
+        </Link>
       </div>
     );
   }
@@ -230,7 +234,6 @@ export default function TerminDetalji() {
         <div className="termin-panel-heading">
           <div>
             <h3>{izvestaj ? "Izveštaj sa pregleda" : "Dodaj izveštaj"}</h3>
-            <p>Medicinski nalaz vezan za ovaj termin.</p>
           </div>
           {izvestaj && (
             <button
@@ -277,7 +280,6 @@ export default function TerminDetalji() {
           </button>
         </form>
       </section>
-
     </div>
   );
 }

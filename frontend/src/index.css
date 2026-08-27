@@ -3,6 +3,29 @@
   padding: 0px;
 }
 
+:root {
+  --color-ink: #333d3e;
+  --color-disable: #b8c7ba;
+  --color-accent: #a3b3a8;
+  --color-accent-strong: #3c7544;
+  --color-accent-soft: #efefef;
+  --color-surface: #ffffff;
+  --color-surface-alt: #efefef;
+  --color-border: #c4d1d8;
+  --color-border-soft: #efefef;
+  --color-page: #efefef;
+  --color-sage: #929694;
+  --color-danger: #333d3e;
+  --color-danger-soft: #efefef;
+  --color-danger-border: #a3b3a8;
+  --color-success: #16551e;
+  --color-success-soft: #efefef;
+  --color-success-light: #cef1d1;
+  --color-warning: #e65353;
+  --color-warning-soft: #ff0d0d1c;
+  --color-warning-border: #ffb6b6;
+}
+
 html,
 body,
 #root {
@@ -10,5 +33,7 @@ body,
 }
 
 body {
-  background-color: #f4f7f6;
+  background-color: var(--color-page);
+  color: var(--color-ink);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
 }

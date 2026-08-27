@@ -4,7 +4,7 @@
   margin: 0 auto;
   padding: 40px 24px;
   font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  color: #0f172a;
+  color: var(--color-ink);
 }
 
 /* Header */
@@ -19,12 +19,12 @@
   font-size: 28px;
   font-weight: 700;
   margin: 0 0 6px 0;
-  color: #0f172a;
+  color: var(--color-ink);
 }
 
 .dermatolozi-subtitle {
   margin: 0;
-  color: #64748b;
+  color: var(--color-disabled);
   font-size: 14px;
 }
 
@@ -32,9 +32,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  color: #334155;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-ink);
   padding: 8px 16px;
   border-radius: 8px;
   font-weight: 600;
@@ -44,9 +44,9 @@
 }
 
 .btn-logout:hover {
-  background-color: #f8fafc;
-  border-color: #94a3b8;
-  color: #0f172a;
+  background-color: var(--color-surface-alt);
+  border-color: var(--color-disabled);
+  color: var(--color-ink);
 }
 
 /* Greške */
@@ -54,9 +54,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background-color: var(--color-danger-soft);
+  border: 1px solid var(--color-danger-border);
+  color: var(--color-danger);
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 14px;
@@ -74,8 +74,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background-color: #0284c7;
-  color: #ffffff;
+  background-color: var(--color-accent-strong);
+  color: var(--color-surface);
   border: none;
   padding: 10px 20px;
   border-radius: 8px;
@@ -85,17 +85,17 @@
   transition:
     background-color 0.2s ease,
     transform 0.1s ease;
-  box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+  box-shadow: 0 2px 4px rgba(116, 139, 123, 0.2);
 }
 
 .btn-primary:hover {
-  background-color: #0369a1;
+  background-color: var(--color-success);
 }
 
 .btn-secondary {
-  background-color: #f1f5f9;
-  color: #475569;
-  border: 1px solid #cbd5e1;
+  background-color: var(--color-surface-alt);
+  color: var(--color-disabled);
+  border: 1px solid var(--color-border);
   padding: 10px 20px;
   border-radius: 8px;
   font-size: 14px;
@@ -105,14 +105,14 @@
 }
 
 .btn-secondary:hover {
-  background-color: #e2e8f0;
+  background-color: var(--color-border);
 }
 
 /* Kartica sa tabelom */
 .table-card {
-  background-color: #ffffff;
+  background-color: var(--color-surface);
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
@@ -129,11 +129,11 @@
 }
 
 .dermatolozi-table th {
-  background-color: #0284c7;
-  color: #ffff;
+  background-color: var(--color-accent-strong);
+  color: var(--color-surface);
   font-weight: 600;
   padding: 14px 20px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border);
   text-transform: uppercase;
   font-size: 12px;
   letter-spacing: 0.5px;
@@ -141,12 +141,12 @@
 
 .dermatolozi-table td {
   padding: 16px 20px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-surface-alt);
   vertical-align: middle;
 }
 
 .dermatolozi-table tbody tr:hover {
-  background-color: #f8fafc;
+  background-color: var(--color-surface-alt);
 }
 
 /* Stanja unutar tabele */
@@ -160,8 +160,8 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: #e0f2fe;
-  color: #0369a1;
+  background-color: var(--color-accent-soft);
+  color: var(--color-accent-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -180,7 +180,7 @@
 }
 
 .text-muted {
-  color: #64748b;
+  color: var(--color-disabled);
   font-size: 12px;
 }
 
@@ -195,13 +195,13 @@
 }
 
 .role-badge.dermatolog {
-  background-color: #f0fdf4;
-  color: #166534;
+  background-color: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .role-badge.admin {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--color-danger-soft);
+  color: var(--color-warning);
 }
 
 .status-badge {
@@ -215,13 +215,13 @@
 }
 
 .status-badge.active {
-  background-color: #ecfdf5;
-  color: #047857;
+  background-color: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .status-badge.inactive {
-  background-color: #fef2f2;
-  color: #b91c1c;
+  background-color: var(--color-warning-soft);
+  color: var(--color-warning);
 }
 
 .status-dot {
@@ -249,42 +249,45 @@
 }
 
 .btn-action.deactivate {
-  background-color: #fff1f2;
-  color: #be123c;
-  border-color: #fecdd3;
+  background-color: var(--color-warning-soft);
+  color: var(--color-warning);
+  border-color: var(--color-warning-border);
 }
 
 .btn-action.deactivate:hover {
-  background-color: #ffe4e6;
+  background-color: var(--color-warning);
+  color: var(--color-surface);
+  border-color: var(--color-warning);
 }
 
 .btn-action.activate {
-  background-color: #f0fdf4;
-  color: #15803d;
-  border-color: #bbf7d0;
+  background-color: var(--color-success-soft);
+  color: var(--color-accent-strong);
+  border-color: var(--color-danger-border);
 }
 
 .btn-action.activate:hover {
-  background-color: #dcfce7;
+  background-color: var(--color-accent-strong);
+  color: var(--color-surface);
 }
 
 .btn-action.delete {
   background-color: transparent;
-  color: #64748b;
-  border-color: #e2e8f0;
+  color: var(--color-sage);
+  border-color: var(--color-sage);
 }
 
 .btn-action.delete:hover {
-  background-color: #f1f5f9;
-  color: #dc2626;
-  border-color: #cbd5e1;
+  background-color: var(--color-accent);
+  color: var(--color-danger);
+  border-color: var(--color-border);
 }
 
 .loading-state,
 .empty-state {
   padding: 48px;
   text-align: center;
-  color: #64748b;
+  color: var(--color-disabled);
   font-size: 15px;
 }
 
@@ -295,7 +298,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(15, 23, 42, 0.5);
+  background-color: rgba(51, 61, 62, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -305,7 +308,7 @@
 }
 
 .modal-content {
-  background-color: #ffffff;
+  background-color: var(--color-surface);
   border-radius: 16px;
   width: 100%;
   max-width: 560px;
@@ -321,7 +324,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .modal-header h2 {
@@ -334,14 +337,14 @@
   background: none;
   border: none;
   font-size: 24px;
-  color: #94a3b8;
+  color: var(--color-disabled);
   cursor: pointer;
   padding: 0;
   line-height: 1;
 }
 
 .modal-close-btn:hover {
-  color: #0f172a;
+  color: var(--color-ink);
 }
 
 .modal-form {
@@ -354,7 +357,7 @@
 
 .message-modal-body {
   padding: 24px;
-  color: #334155;
+  color: var(--color-ink);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -368,9 +371,9 @@
 }
 
 .btn-danger {
-  background-color: #dc2626;
-  color: #ffffff;
-  border: 1px solid #dc2626;
+  background-color: var(--color-danger);
+  color: var(--color-surface);
+  border: 1px solid var(--color-danger);
   padding: 10px 20px;
   border-radius: 8px;
   font-size: 14px;
@@ -380,8 +383,8 @@
 }
 
 .btn-danger:hover {
-  background-color: #b91c1c;
-  border-color: #b91c1c;
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
 }
 
 .form-grid {
@@ -400,14 +403,14 @@
 .form-group label {
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--color-ink);
 }
 
 .form-group input,
 .form-group select {
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   font-size: 14px;
   outline: none;
   transition:
@@ -415,13 +418,13 @@
     box-shadow 0.2s;
   width: 100%;
   box-sizing: border-box;
-  background-color: #fff;
+  background-color: var(--color-surface);
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(116, 139, 123, 0.15);
 }
 
 .modal-footer {
@@ -429,7 +432,7 @@
   justify-content: flex-end;
   gap: 12px;
   padding: 10px;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--color-border);
 }
 
 /* Animacije */

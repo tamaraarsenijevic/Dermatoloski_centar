@@ -80,7 +80,6 @@ export default function Pacijenti() {
     <div className="pacijenti-page">
       <div className="pacijenti-header">
         <div>
-          <p className="pacijenti-eyebrow">Dermatolog</p>
           <h2>Pacijenti</h2>
           <p className="pacijenti-subtitle">
             Pregled svih pacijenata sa brzim pristupom detaljima, terminima i

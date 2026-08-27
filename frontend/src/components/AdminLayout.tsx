@@ -40,11 +40,11 @@ export default function AdminLayout({ children }: Props) {
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-brand">
-          <div className="admin-brand-icon">★</div>
-          <div>
-            <strong>Admin</strong>
-            <span>Dermatološki Centar</span>
-          </div>
+          <img
+            className="admin-brand-logo"
+            src="/logo.png"
+            alt="Dermatološki Centar"
+          />
         </div>
 
         <nav className="admin-nav" aria-label="Admin navigacija">
