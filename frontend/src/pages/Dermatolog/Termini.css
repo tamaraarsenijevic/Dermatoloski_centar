@@ -433,9 +433,9 @@
 }
 
 .termin-kartica-zavrseno {
-  background: #e8f3e9;
+  background: var(--color-success-light);
   border: 1px solid #a9c9ad;
-  color: var(--color-success-light);
+  color: var(--color-success);
 }
 
 .termin-kartica-otkazano {
