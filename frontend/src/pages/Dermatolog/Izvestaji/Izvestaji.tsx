@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { getTermini } from "../../api/termini";
+import { getTermini } from "../../../api/termini";
 import {
   dodajIzvestaj,
   getIzvestajZaTermin,
   izmeniIzvestaj,
-} from "../../api/izvestaji";
-import type { Termin, Izvestaj } from "../../types";
+} from "../../../api/izvestaji";
+import type { Termin, Izvestaj } from "../../../types";
 import {
   otvoriIzvestajKaoPdf,
   sacuvajIzvestajKaoPdf,
-} from "../../utils/izvestajPdf";
+} from "../../../utils/izvestajPdf";
 import "./Izvestaji.css";
 
 export default function IzvestajiStranica() {

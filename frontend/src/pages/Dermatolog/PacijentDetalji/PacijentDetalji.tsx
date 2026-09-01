@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getPacijentPoId } from "../../api/pacijenti";
-import { getTermini } from "../../api/termini";
-import { getIzvestajiZaPacijenta } from "../../api/izvestaji";
-import type { Izvestaj, Pacijent, Termin } from "../../types";
-import { sacuvajIzvestajKaoPdf } from "../../utils/izvestajPdf";
-import "./Pacijenti.css";
+import { getPacijentPoId } from "../../../api/pacijenti";
+import { getTermini } from "../../../api/termini";
+import { getIzvestajiZaPacijenta } from "../../../api/izvestaji";
+import type { Izvestaj, Pacijent, Termin } from "../../../types";
+import { sacuvajIzvestajKaoPdf } from "../../../utils/izvestajPdf";
+import "../Pacijenti/Pacijenti.css";
 
 type IzvestajSaTerminInfo = Izvestaj & {
   termin?: {
@@ -213,7 +213,9 @@ export default function PacijentDetalji() {
                       </span>
                     </td>
                     <td>
-                      {termin.dermatolog.ime} {termin.dermatolog.prezime}
+                      {termin.dermatolog
+                        ? `${termin.dermatolog.ime} ${termin.dermatolog.prezime}`
+                        : "-"}
                     </td>
                   </tr>
                 ))}

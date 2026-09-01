@@ -94,6 +94,16 @@
   padding: 24px;
 }
 
+.zakazi-modal-greska {
+  margin: 0 0 18px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--color-danger) 35%, transparent);
+  border-radius: 6px;
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
 .forma-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

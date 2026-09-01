@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/useAuth";
-import type { Uloga } from "../types";
+import { useAuth } from "../../context/useAuth";
+import type { Uloga } from "../../types";
 
 interface Props {
   dozvoljeneUloge: Uloga[];
