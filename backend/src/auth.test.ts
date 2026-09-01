@@ -478,15 +478,13 @@ describe("Backend auth and availability logic", () => {
     vi.mocked(prisma.$transaction).mockImplementation(async (callback) => {
       const tx = {
         termin: {
-          findUnique: vi
-            .fn()
-            .mockResolvedValue({
-              id: 1,
-              dermatologId: 9,
-              datumVreme: new Date("2026-09-02T10:00:00Z"),
-              status: "ZAKAZANO",
-              usluga: { trajanjeMin: 30 },
-            }),
+          findUnique: vi.fn().mockResolvedValue({
+            id: 1,
+            dermatologId: 9,
+            datumVreme: new Date("2026-09-02T10:00:00Z"),
+            status: "ZAKAZANO",
+            usluga: { trajanjeMin: 30 },
+          }),
           update: vi.fn().mockResolvedValue({ id: 1, status: "ZAVRSENO" }),
           findMany: vi.fn().mockResolvedValue([]),
         },
@@ -699,7 +697,7 @@ describe("Backend auth and availability logic", () => {
         prezime: "Marković",
         email: "marko@test.com",
         telefon: "062",
-        lozinka: "123",
+        lozinka: "Test1234",
         uloga: "DERMATOLOG",
       })
       .set("Cookie", [
@@ -708,6 +706,25 @@ describe("Backend auth and availability logic", () => {
       .expect(201);
 
     expect(response.body.email).toBe("marko@test.com");
+  });
+
+  it("/api/zaposleni odbija lozinku koja ne ispunjava pravila", async () => {
+    const response = await request(app)
+      .post("/api/zaposleni")
+      .send({
+        ime: "Marko",
+        prezime: "Marković",
+        email: "marko@test.com",
+        telefon: "062",
+        lozinka: "123",
+        uloga: "DERMATOLOG",
+      })
+      .set("Cookie", [
+        `token=${jwt.sign({ id: 7, uloga: "ADMIN", email: "admin@test.com" }, "test-secret")}`,
+      ])
+      .expect(400);
+
+    expect(response.body.greska).toMatch(/bar 8|slovo|broj/i);
   });
 
   it("/api/zaposleni/:id menja status zaposlenog", async () => {

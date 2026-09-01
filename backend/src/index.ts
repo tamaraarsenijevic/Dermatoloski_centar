@@ -13,6 +13,20 @@ export const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = () => process.env.JWT_SECRET || "tajna_sifra_dermatologija";
 
+const validacijaLozinke = (lozinka: string): boolean => {
+  return lozinka.length >= 8 && /[A-Za-z]/.test(lozinka) && /\d/.test(lozinka);
+};
+
+const validacijaTelefona = (telefon: string): boolean => {
+  const telefonTrim = telefon.trim();
+  return (
+    telefonTrim.length >= 3 &&
+    /\d/.test(telefonTrim) &&
+    !/[A-Za-z]/.test(telefonTrim) &&
+    /^[0-9+\s\-\/()]+$/.test(telefonTrim)
+  );
+};
+
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -762,19 +776,53 @@ app.post(
       uloga?: Uloga;
     };
 
-    if (!ime || !prezime || !email || !telefon || !lozinka || !uloga) {
+    const imeTrim = ime?.trim();
+    const prezimeTrim = prezime?.trim();
+    const emailTrim = email?.trim();
+    const telefonTrim = telefon?.trim();
+    const lozinkaTrim = lozinka?.trim();
+
+    if (
+      !imeTrim ||
+      !prezimeTrim ||
+      !emailTrim ||
+      !telefonTrim ||
+      !lozinkaTrim ||
+      !uloga
+    ) {
       res.status(400).json({ greska: "Sva polja su obavezna." });
       return;
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrim)) {
+      res.status(400).json({ greska: "Email adresa nije ispravna." });
+      return;
+    }
+
+    if (!validacijaTelefona(telefonTrim)) {
+      res.status(400).json({
+        greska:
+          "Broj telefona mora da sadrži samo cifre, razmake i opciono +, - ili /.",
+      });
+      return;
+    }
+
+    if (!validacijaLozinke(lozinkaTrim)) {
+      res.status(400).json({
+        greska:
+          "Lozinka mora imati najmanje 8 karaktera, bar jedno slovo i bar jedan broj.",
+      });
+      return;
+    }
+
     try {
-      const hashovanaLozinka = await bcrypt.hash(lozinka, 10);
+      const hashovanaLozinka = await bcrypt.hash(lozinkaTrim, 10);
       const noviZaposleni = await prisma.zaposleni.create({
         data: {
-          ime,
-          prezime,
-          email,
-          telefon,
+          ime: imeTrim,
+          prezime: prezimeTrim,
+          email: emailTrim,
+          telefon: telefonTrim,
           lozinka: hashovanaLozinka,
           uloga,
         },

@@ -68,11 +68,60 @@ export default function Dermatolozi() {
     };
   }, []);
 
+  const validirajNoviZaposlenog = (podaci: typeof novi) => {
+    const ime = podaci.ime.trim();
+    const prezime = podaci.prezime.trim();
+    const email = podaci.email.trim();
+    const telefon = podaci.telefon.trim();
+    const lozinka = podaci.lozinka.trim();
+
+    if (!ime || !prezime || !email || !telefon || !lozinka) {
+      return "Sva polja su obavezna.";
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return "Email adresa nije ispravna.";
+    }
+
+    if (
+      telefon.length < 3 ||
+      !/\d/.test(telefon) ||
+      /[A-Za-z]/.test(telefon) ||
+      !/^[0-9+\s\-\/()]+$/.test(telefon)
+    ) {
+      return "Broj telefona mora da sadrži cifre i ne sme da bude tekst.";
+    }
+
+    if (
+      lozinka.length < 8 ||
+      !/[A-Za-z]/.test(lozinka) ||
+      !/\d/.test(lozinka)
+    ) {
+      return "Lozinka mora imati najmanje 8 karaktera, bar jedno slovo i bar jedan broj.";
+    }
+
+    return "";
+  };
+
   const handleDodaj = async (e: React.FormEvent) => {
     e.preventDefault();
     setGreska("");
+
+    const porukaValidacije = validirajNoviZaposlenog(novi);
+    if (porukaValidacije) {
+      setGreska(porukaValidacije);
+      return;
+    }
+
     try {
-      await dodajZaposlenog(novi);
+      await dodajZaposlenog({
+        ...novi,
+        ime: novi.ime.trim(),
+        prezime: novi.prezime.trim(),
+        email: novi.email.trim(),
+        telefon: novi.telefon.trim(),
+        lozinka: novi.lozinka.trim(),
+      });
       setNovi({
         ime: "",
         prezime: "",
@@ -269,6 +318,11 @@ export default function Dermatolozi() {
             </div>
 
             <form onSubmit={handleDodaj} className="modal-form">
+              {greska && (
+                <div className="form-error-message" role="alert">
+                  {greska}
+                </div>
+              )}
               <div className="form-grid">
                 <div className="form-group">
                   <label htmlFor="ime">Ime</label>
@@ -313,6 +367,8 @@ export default function Dermatolozi() {
                   <input
                     id="telefon"
                     placeholder="+381 6X XXX XXXX"
+                    inputMode="numeric"
+                    pattern="[0-9+\s\-\/()]{3,}"
                     value={novi.telefon}
                     onChange={(e) =>
                       setNovi({ ...novi, telefon: e.target.value })
@@ -327,6 +383,7 @@ export default function Dermatolozi() {
                     id="lozinka"
                     type="password"
                     placeholder="••••••••"
+                    minLength={8}
                     value={novi.lozinka}
                     onChange={(e) =>
                       setNovi({ ...novi, lozinka: e.target.value })

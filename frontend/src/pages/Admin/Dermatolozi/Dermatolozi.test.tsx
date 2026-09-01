@@ -136,7 +136,7 @@ describe("Dermatolozi", () => {
     await user.type(screen.getByLabelText("Prezime"), "Nikolić");
     await user.type(screen.getByLabelText("Email adresa"), "nikola@test.com");
     await user.type(screen.getByLabelText("Broj telefona"), "062");
-    await user.type(screen.getByLabelText("Lozinka"), "lozinka");
+    await user.type(screen.getByLabelText("Lozinka"), "lozinka123");
 
     const submitBtn = screen.getByRole("button", {
       name: /sačuvaj|spremi/i,
@@ -146,6 +146,39 @@ describe("Dermatolozi", () => {
     await waitFor(() => {
       expect(zaposleniApi.dodajZaposlenog).toHaveBeenCalled();
     });
+  });
+
+  it("ne kreira novog zaposlenog kada su polja neispravna", async () => {
+    vi.mocked(zaposleniApi.getZaposleni).mockResolvedValue(
+      makeAxiosResponse<Zaposleni[]>([]),
+    );
+
+    const user = userEvent.setup();
+    render(<Dermatolozi />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Trenutno nema registrovanih zaposlenih."),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /dodaj|novi/i }));
+
+    await user.type(screen.getByLabelText("Ime"), "Nikola");
+    await user.type(screen.getByLabelText("Prezime"), "Nikolić");
+    await user.type(screen.getByLabelText("Email adresa"), "nikola@test.com");
+    await user.type(screen.getByLabelText("Broj telefona"), "abc");
+    await user.type(screen.getByLabelText("Lozinka"), "123");
+
+    fireEvent.click(screen.getByRole("button", { name: /sačuvaj|spremi/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/broj telefona|lozinka mora imati|min 8|sva polja/i),
+      ).toBeInTheDocument();
+    });
+
+    expect(zaposleniApi.dodajZaposlenog).not.toHaveBeenCalled();
   });
 
   it("menja status zaposlenog", async () => {
