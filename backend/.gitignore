@@ -6,6 +6,7 @@
 /dist
 /build
 /generated/prisma
+coverage
 .agents/
 skills-lock.json
 

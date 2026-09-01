@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { getTermini, zakaziTermin } from "../../api/termini";
-import { getPacijenti } from "../../api/pacijenti";
-import { getUsluge } from "../../api/usluge";
-import type { Termin, Pacijent, Usluga } from "../../types";
-import { useAuth } from "../../context/useAuth";
+import { getTermini, zakaziTermin } from "../../../api/termini";
+import { getPacijenti } from "../../../api/pacijenti";
+import { getUsluge } from "../../../api/usluge";
+import type { Termin, Pacijent, Usluga } from "../../../types";
+import { useAuth } from "../../../context/useAuth";
 import "./Termini.css";
 
 type PrikazRasporeda = "MESECNI" | "NEDELJNI" | "DNEVNI";
@@ -387,7 +387,7 @@ export default function Termini() {
         </button>
       </div>
 
-      {greska && <p className="termini-greska">{greska}</p>}
+      {greska && !prikaziForm && <p className="termini-greska">{greska}</p>}
 
       {prikaziForm && (
         <div
@@ -411,6 +411,7 @@ export default function Termini() {
             </div>
 
             <form onSubmit={handleZakazi} className="forma-zakazi">
+              {greska && <p className="zakazi-modal-greska">{greska}</p>}
               <div className="forma-grid">
                 <div className="forma-polje">
                   <label htmlFor="termin-datum">Datum *</label>

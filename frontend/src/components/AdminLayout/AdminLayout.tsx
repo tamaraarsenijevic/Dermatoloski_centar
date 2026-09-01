@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
-import { useAuth } from "../context/useAuth";
-import { formatDoctorName } from "../utils/formatters";
+import { useAuth } from "../../context/useAuth";
+import { formatDoctorName } from "../../utils/formatters";
 import "./AdminLayout.css";
 
 interface Props {

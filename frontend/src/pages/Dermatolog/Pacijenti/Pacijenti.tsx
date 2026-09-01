@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getPacijenti, dodajPacijenta } from "../../api/pacijenti";
-import type { Pacijent } from "../../types";
+import { getPacijenti, dodajPacijenta } from "../../../api/pacijenti";
+import type { Pacijent } from "../../../types";
 import "./Pacijenti.css";
 
 export default function Pacijenti() {

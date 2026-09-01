@@ -5,10 +5,10 @@ import {
   dodajZaposlenog,
   izmeniZaposlenog,
   obrisiZaposlenog,
-} from "../../api/zaposleni";
-import { useAuth } from "../../context/useAuth";
-import type { Zaposleni, Uloga } from "../../types";
-import { formatDoctorName } from "../../utils/formatters";
+} from "../../../api/zaposleni";
+import { useAuth } from "../../../context/useAuth";
+import type { Zaposleni, Uloga } from "../../../types";
+import { formatDoctorName } from "../../../utils/formatters";
 import "./Dermatolozi.style.css";
 
 interface ModalBrisanja {
@@ -103,7 +103,8 @@ export default function Dermatolozi() {
       ucitajZaposlene();
     } catch (error) {
       if (
-        axios.isAxiosError(error) &&
+        (axios.isAxiosError(error) ||
+          (error && typeof error === "object" && "response" in error)) &&
         error.response?.status === 409 &&
         ["ZAKAZANI_TERMINI", "POTVRDA_BRISANJA"].includes(
           error.response.data?.kod,

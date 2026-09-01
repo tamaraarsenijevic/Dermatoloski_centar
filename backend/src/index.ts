@@ -9,9 +9,9 @@ import { Prisma, Uloga } from "@prisma/client";
 
 dotenv.config();
 
-const app = express();
+export const app = express();
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET || "tajna_sifra_dermatologija";
+const JWT_SECRET = () => process.env.JWT_SECRET || "tajna_sifra_dermatologija";
 
 app.use(
   cors({
@@ -35,7 +35,7 @@ export interface AuthRequest extends Request {
 }
 
 // Middleware za autentifikaciju
-const autentifikacija = async (
+export const autentifikacija = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction,
@@ -48,7 +48,7 @@ const autentifikacija = async (
   }
 
   try {
-    const dekodiran = jwt.verify(token, JWT_SECRET) as AuthenticatedUser;
+    const dekodiran = jwt.verify(token, JWT_SECRET()) as AuthenticatedUser;
     const zaposleni = await prisma.zaposleni.findUnique({
       where: { id: dekodiran.id },
       select: { aktivan: true },
@@ -67,7 +67,7 @@ const autentifikacija = async (
 };
 
 // Middleware za proveru uloge
-const dozvoljenaUloga = (...uloge: Uloga[]) => {
+export const dozvoljenaUloga = (...uloge: Uloga[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.zaposleni || !uloge.includes(req.zaposleni.uloga)) {
       res.status(403).json({ greska: "Nemate dozvolu za ovu akciju." });
@@ -110,7 +110,7 @@ app.post(
 
       const token = jwt.sign(
         { id: zaposleni.id, uloga: zaposleni.uloga, email: zaposleni.email },
-        JWT_SECRET,
+        JWT_SECRET(),
         { expiresIn: "8h" },
       );
 
@@ -297,7 +297,7 @@ app.delete(
 
 // ==================== TERMINI ====================
 
-const dermatologImaPreklapanje = async (
+export const dermatologImaPreklapanje = async (
   dermatologId: number,
   datumVreme: Date,
   trajanjeMin: number,
@@ -327,8 +327,9 @@ app.get(
   "/api/termini",
   autentifikacija,
   dozvoljenaUloga("DERMATOLOG"),
-  async (_req: Request, res: Response): Promise<void> => {
+  async (req: AuthRequest, res: Response): Promise<void> => {
     const termini = await prisma.termin.findMany({
+      where: { dermatologId: req.zaposleni!.id },
       include: {
         pacijent: true,
         dermatolog: { select: { ime: true, prezime: true } },
@@ -344,9 +345,9 @@ app.post(
   "/api/termini",
   autentifikacija,
   dozvoljenaUloga("DERMATOLOG"),
-  async (req: Request, res: Response): Promise<void> => {
-    const { datumVreme, pacijentId, dermatologId, uslugaId, napomena } =
-      req.body;
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const { datumVreme, pacijentId, uslugaId, napomena } = req.body;
+    const dermatologId = req.zaposleni!.id;
     try {
       const pocetak = new Date(datumVreme);
       const novTermin = await prisma.$transaction(
@@ -801,7 +802,7 @@ app.put(
   "/api/zaposleni/:id",
   autentifikacija,
   dozvoljenaUloga("ADMIN"),
-  async (req: Request, res: Response): Promise<void> => {
+  async (req: AuthRequest, res: Response): Promise<void> => {
     const { id } = req.params;
     const { ime, prezime, email, telefon, uloga, aktivan } = req.body;
 
@@ -959,6 +960,8 @@ app.delete(
   },
 );
 
-app.listen(PORT, () => {
-  console.log(`Backend server radi na http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Backend server radi na http://localhost:${PORT}`);
+  });
+}

@@ -4,8 +4,8 @@ import {
   dodajUslugu,
   izmeniUslugu,
   obrisiUslugu,
-} from "../../api/usluge";
-import type { Usluga } from "../../types";
+} from "../../../api/usluge";
+import type { Usluga } from "../../../types";
 import "./Usluge.css";
 
 export default function UslugeLista() {

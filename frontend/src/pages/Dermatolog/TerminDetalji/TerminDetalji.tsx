@@ -1,13 +1,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getTermini, izmeniTermin } from "../../api/termini";
+import { getTermini, izmeniTermin } from "../../../api/termini";
 import {
   dodajIzvestaj,
   getIzvestajZaTermin,
   izmeniIzvestaj,
-} from "../../api/izvestaji";
-import type { Izvestaj, Termin } from "../../types";
-import { sacuvajIzvestajKaoPdf } from "../../utils/izvestajPdf";
+} from "../../../api/izvestaji";
+import type { Izvestaj, Termin } from "../../../types";
+import { sacuvajIzvestajKaoPdf } from "../../../utils/izvestajPdf";
 import "./TerminDetalji.css";
 
 const statusNazivi: Record<Termin["status"], string> = {

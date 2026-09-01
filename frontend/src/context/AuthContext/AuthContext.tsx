@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import type { Zaposleni } from "../types";
+import type { Zaposleni } from "../../types";
 import {
   getCurrentUser,
   login as apiLogin,
   logout as apiLogout,
-} from "../api/auth";
+} from "../../api/auth";
 import { AuthContext } from "./AuthContext.types";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
