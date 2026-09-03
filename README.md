@@ -11,6 +11,7 @@ Projekat je rađen kao deo diplomskog rada.
 - Dodavanje, izmena i brisanje zaposlenih (admina i dermatologa)
 - Dodela pristupa i uloga zaposlenima
 - Upravljanje cenovnikom usluga (dodavanje, izmena, brisanje)
+- Pregled mesecne statistike
 
 ### Dermatolog
 
