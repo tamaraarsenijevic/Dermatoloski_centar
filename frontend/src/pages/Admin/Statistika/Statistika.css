@@ -1,0 +1,234 @@
+.statistika-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 42px 32px 56px;
+  color: var(--color-ink);
+}
+
+.statistika-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.statistika-eyebrow {
+  margin-bottom: 8px;
+  color: var(--color-accent-strong);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.statistika-header h2 {
+  font-size: clamp(27px, 4vw, 38px);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.statistika-subtitle {
+  max-width: 500px;
+  margin-top: 10px;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.statistika-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.statistika-filters label {
+  display: flex;
+  min-width: 132px;
+  flex-direction: column;
+  gap: 7px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.statistika-filters select,
+.statistika-filters input {
+  box-sizing: border-box;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.statistika-filters select:focus,
+.statistika-filters input:focus {
+  outline: 2px solid #93c5fd;
+  border-color: #2563eb;
+}
+
+.statistika-error {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--color-warning);
+  background: var(--color-warning-border);
+  color: var(--color-warning-soft);
+  font-size: 14px;
+}
+
+.statistika-state {
+  padding: 48px 20px;
+  border: 1px dashed var(--color-border);
+  border-radius: 10px;
+  color: #64748b;
+  text-align: center;
+}
+
+.statistika-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.statistika-card {
+  min-height: 164px;
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+}
+
+.statistika-card-accent {
+  border-color: #a9d2ae;
+  background: #f3faf3;
+}
+
+.statistika-card-label,
+.statistika-card-note {
+  display: block;
+}
+
+.statistika-card-label {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.statistika-card strong {
+  display: block;
+  margin: 22px 0 9px;
+  color: var(--color-accent-strong);
+  font-size: clamp(28px, 4vw, 38px);
+  line-height: 1;
+}
+
+.statistika-card-accent strong {
+  font-size: clamp(22px, 3vw, 32px);
+}
+
+.statistika-card-note {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.statistika-chart {
+  margin-top: 28px;
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  box-shadow: 0 5px 18px rgba(15, 23, 42, 0.05);
+}
+
+.statistika-chart-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.statistika-chart-header h3 {
+  margin-top: 4px;
+  font-size: 20px;
+}
+
+.statistika-chart-total {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.statistika-bars {
+  display: grid;
+  gap: 18px;
+}
+
+.statistika-bar-row {
+  display: grid;
+  gap: 8px;
+}
+
+.statistika-bar-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--color-ink);
+  font-size: 14px;
+}
+
+.statistika-bar-label strong {
+  color: var(--color-accent-strong);
+}
+
+.statistika-bar-track {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #e8eee9;
+}
+
+.statistika-bar-fill {
+  height: 100%;
+  min-width: 8px;
+  border-radius: inherit;
+  background: var(--color-accent-strong);
+  transition: width 0.35s ease;
+}
+
+@media (max-width: 760px) {
+  .statistika-page {
+    padding: 28px 20px 40px;
+  }
+
+  .statistika-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .statistika-filters {
+    width: 100%;
+  }
+
+  .statistika-filters label {
+    flex: 1;
+  }
+
+  .statistika-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .statistika-chart {
+    padding: 20px;
+  }
+
+  .statistika-chart-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

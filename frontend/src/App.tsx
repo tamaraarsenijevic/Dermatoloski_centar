@@ -12,6 +12,7 @@ import PublicRoute from "./router/PublicRoute/PublicRoute";
 import DermatologLayout from "./components/DermatologLayout";
 import Usluge from "./pages/Admin/Usluge/Usluge";
 import AdminLayout from "./components/AdminLayout/AdminLayout";
+import Statistika from "./pages/Admin/Statistika/Statistika";
 
 function App() {
   return (
@@ -42,6 +43,16 @@ function App() {
             <ProtectedRoute dozvoljeneUloge={["ADMIN"]}>
               <AdminLayout>
                 <Usluge />
+              </AdminLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/statistika"
+          element={
+            <ProtectedRoute dozvoljeneUloge={["ADMIN"]}>
+              <AdminLayout>
+                <Statistika />
               </AdminLayout>
             </ProtectedRoute>
           }
