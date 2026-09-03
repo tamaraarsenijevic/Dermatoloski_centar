@@ -258,7 +258,7 @@ describe("Backend auth and availability logic", () => {
       aktivan: true,
     } as any);
     vi.mocked(prisma.termin.count).mockResolvedValue(3);
-    vi.mocked(prisma.izvrsenaUsluga.findMany).mockResolvedValue([
+    vi.mocked(prisma.termin.findMany).mockResolvedValue([
       { usluga: { cena: 1500 } },
       { usluga: { cena: 2200 } },
     ] as any);
