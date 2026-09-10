@@ -141,7 +141,6 @@ router.put(
             ))
           )
             throw new Error("PREKLAPANJE_TERMINA");
-
           const izmenjen = await tx.termin.update({
             where: { id: terminId },
             data: {
