@@ -60,9 +60,9 @@ router.post(
         async (tx) => {
           const usluga = await tx.usluga.findUnique({
             where: { id: Number(uslugaId) },
-            select: { trajanjeMin: true },
+            select: { trajanjeMin: true, aktivan: true },
           });
-          if (Number.isNaN(pocetak.getTime()) || !usluga)
+          if (Number.isNaN(pocetak.getTime()) || !usluga || !usluga.aktivan)
             throw new Error("NEISPRAVAN_TERMIN");
           if (
             await dermatologImaPreklapanje(

@@ -203,6 +203,40 @@ describe("Usluge", () => {
     });
   });
 
+  it("onemogućava uslugu bez brisanja", async () => {
+    const mockUsluga: Usluga = {
+      id: 1,
+      naziv: "Kontrola",
+      opis: "Pregled",
+      trajanjeMin: 30,
+      cena: 1800,
+      aktivan: true,
+    };
+
+    vi.mocked(uslugeApi.getUsluge).mockResolvedValue(
+      makeAxiosResponse([mockUsluga]),
+    );
+    vi.mocked(uslugeApi.izmeniUslugu).mockResolvedValue(
+      makeAxiosResponse({ ...mockUsluga, aktivan: false }),
+    );
+
+    render(<UslugeLista />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Deaktiviraj" }),
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Deaktiviraj" }));
+
+    await waitFor(() => {
+      expect(uslugeApi.izmeniUslugu).toHaveBeenCalledWith(1, {
+        aktivan: false,
+      });
+    });
+  });
+
   it("prikazuje formu za dodavanje usluge", async () => {
     vi.mocked(uslugeApi.getUsluge).mockResolvedValue(
       makeAxiosResponse<Usluga[]>([]),

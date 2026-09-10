@@ -1,0 +1,1 @@
+ALTER TABLE "Usluga" ADD COLUMN "aktivan" BOOLEAN NOT NULL DEFAULT true;

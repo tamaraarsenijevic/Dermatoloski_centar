@@ -60,6 +60,7 @@ model Usluga {
   opis        String?
   trajanjeMin Int      @default(30)
   cena        Float
+  aktivan     Boolean  @default(true)
   termini     Termin[]
   izvrseneUsluge  IzvrsenaUsluga[]
 }

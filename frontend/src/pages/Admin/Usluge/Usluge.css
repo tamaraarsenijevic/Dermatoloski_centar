@@ -262,6 +262,39 @@
   font-size: 18px;
 }
 
+.usluga-card-neaktivna {
+  opacity: 0.72;
+}
+
+.usluga-card-neaktivna::before {
+  background: #94a3b8;
+}
+
+.usluga-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.usluga-status {
+  flex-shrink: 0;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.usluga-status.aktivna {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.usluga-status.neaktivna {
+  background: #e2e8f0;
+  color: #475569;
+}
+
 .usluga-description {
   flex: 1;
   color: #64748b;
@@ -296,7 +329,7 @@
 
 .usluga-action {
   flex: 1;
-  padding: 9px 10px;
+  padding: 9px 7px;
   background: #f1f5f9;
   color: #334155;
   font-size: 13px;
