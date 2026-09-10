@@ -180,6 +180,57 @@ describe("TerminDetalji", () => {
     });
   });
 
+  it("menja datum i vreme termina", async () => {
+    const mockTermin: Termin = {
+      id: 1,
+      status: "ZAKAZANO",
+      datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
+      dermatolog: { ime: "Petar", prezime: "Petrović" },
+      pacijent: {
+        id: 1,
+        ime: "Jovana",
+        prezime: "Jovanović",
+        jmbg: "1234567890123",
+        telefon: "0601234567",
+        email: "jovana@test.com",
+      },
+      usluga: { id: 1, naziv: "Kontrola", trajanjeMin: 30, cena: 1500 },
+    };
+
+    vi.mocked(terminiApi.getTermini).mockResolvedValue(
+      makeAxiosResponse([mockTermin]),
+    );
+    vi.mocked(izvestajiApi.getIzvestajZaTermin).mockRejectedValue(
+      new Error("Nema izvestaja"),
+    );
+    vi.mocked(terminiApi.izmeniTermin).mockResolvedValue(
+      makeAxiosResponse({
+        ...mockTermin,
+        datumVreme: new Date("2026-09-03T11:30:00Z").toISOString(),
+      }),
+    );
+
+    const user = userEvent.setup();
+    render(<TerminDetalji />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Datum")).toHaveValue("2026-09-02");
+    });
+    const datum = screen.getByLabelText("Datum");
+    const vreme = screen.getByLabelText("Vreme");
+    await user.clear(datum);
+    await user.type(datum, "2026-09-03");
+    await user.clear(vreme);
+    await user.type(vreme, "11:30");
+    fireEvent.click(screen.getByRole("button", { name: "Izmeni termin" }));
+
+    await waitFor(() => {
+      expect(terminiApi.izmeniTermin).toHaveBeenCalledWith(1, {
+        datumVreme: new Date("2026-09-03T11:30").toISOString(),
+      });
+    });
+  });
+
   it("briše termin nakon potvrde", async () => {
     const mockTermin: Termin = {
       id: 1,

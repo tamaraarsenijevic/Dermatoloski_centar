@@ -27,6 +27,21 @@ const formatDatumIVreme = (vrednost: string) =>
     minute: "2-digit",
   });
 
+const formatZaDatum = (vrednost: string) => {
+  const datum = new Date(vrednost);
+  const godina = datum.getFullYear();
+  const mesec = String(datum.getMonth() + 1).padStart(2, "0");
+  const dan = String(datum.getDate()).padStart(2, "0");
+  return `${godina}-${mesec}-${dan}`;
+};
+
+const formatZaVreme = (vrednost: string) => {
+  const datum = new Date(vrednost);
+  return `${String(datum.getHours()).padStart(2, "0")}:${String(
+    datum.getMinutes(),
+  ).padStart(2, "0")}`;
+};
+
 export default function TerminDetalji() {
   const { id } = useParams();
   const terminId = Number(id);
@@ -37,8 +52,10 @@ export default function TerminDetalji() {
     terapija: "",
     anamneza: "",
   });
+  const [terminForma, setTerminForma] = useState({ datum: "", vreme: "" });
   const [ucitavanje, setUcitavanje] = useState(true);
   const [slanje, setSlanje] = useState(false);
+  const [cuvanjeTermina, setCuvanjeTermina] = useState(false);
   const [brisanje, setBrisanje] = useState(false);
   const [brisanjeIzvestaja, setBrisanjeIzvestaja] = useState(false);
   const [greska, setGreska] = useState("");
@@ -64,6 +81,10 @@ export default function TerminDetalji() {
         );
         if (ignore) return;
         setTermin(pronadjen);
+        setTerminForma({
+          datum: formatZaDatum(pronadjen.datumVreme),
+          vreme: formatZaVreme(pronadjen.datumVreme),
+        });
         setIzvestaj(izvestajRes?.data ?? null);
         if (izvestajRes?.data) {
           setForma({
@@ -95,6 +116,37 @@ export default function TerminDetalji() {
       setPoruka(`Termin je označen kao ${statusNazivi[status].toLowerCase()}.`);
     } catch {
       setGreska("Greška pri promeni statusa termina.");
+    }
+  };
+
+  const sacuvajTermin = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!termin) return;
+    setCuvanjeTermina(true);
+    setGreska("");
+    setPoruka("");
+    try {
+      const datumVreme = new Date(`${terminForma.datum}T${terminForma.vreme}`);
+      if (Number.isNaN(datumVreme.getTime())) {
+        setGreska("Datum i vreme termina nisu ispravni.");
+        return;
+      }
+      const res = await izmeniTermin(termin.id, {
+        datumVreme: datumVreme.toISOString(),
+      });
+      setTermin({ ...termin, ...res.data });
+      setTerminForma({
+        datum: formatZaDatum(res.data.datumVreme),
+        vreme: formatZaVreme(res.data.datumVreme),
+      });
+      setPoruka("Datum i vreme termina su uspešno izmenjeni.");
+    } catch (error) {
+      const poruka = axios.isAxiosError(error)
+        ? error.response?.data?.greska
+        : undefined;
+      setGreska(poruka || "Greška pri izmeni datuma i vremena termina.");
+    } finally {
+      setCuvanjeTermina(false);
     }
   };
 
@@ -218,6 +270,45 @@ export default function TerminDetalji() {
         <section className="termin-detalji-panel">
           <h3>Podaci o pacijentu</h3>
           <dl className="termin-podaci">
+            <div className="termin-izmena-red">
+              <dd>
+                <form onSubmit={sacuvajTermin} className="termin-vreme-form">
+                  <div className="termin-vreme-polja">
+                    <label>
+                      Datum
+                      <input
+                        type="date"
+                        value={terminForma.datum}
+                        onChange={(e) =>
+                          setTerminForma({
+                            ...terminForma,
+                            datum: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </label>
+                    <label>
+                      Vreme
+                      <input
+                        type="time"
+                        value={terminForma.vreme}
+                        onChange={(e) =>
+                          setTerminForma({
+                            ...terminForma,
+                            vreme: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </label>
+                  </div>
+                  <button type="submit" disabled={cuvanjeTermina}>
+                    {cuvanjeTermina ? "Čuvanje..." : "Izmeni termin"}
+                  </button>
+                </form>
+              </dd>
+            </div>
             <div>
               <dt>Ime i prezime</dt>
               <dd>
