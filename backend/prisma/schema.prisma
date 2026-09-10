@@ -105,6 +105,7 @@ model Izvestaj {
 model IzvrsenaUsluga {
   id           Int      @id @default(autoincrement())
   datum        DateTime @default(now())
+  cena         Float
 
   pacijentId   Int
   pacijent     Pacijent @relation(fields: [pacijentId], references: [id])

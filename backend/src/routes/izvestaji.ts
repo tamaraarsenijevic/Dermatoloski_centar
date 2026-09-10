@@ -26,12 +26,9 @@ router.post(
       });
       res.status(201).json(novi);
     } catch {
-      res
-        .status(400)
-        .json({
-          greska:
-            "Neuspešan unos izveštaja (možda već postoji za ovaj termin).",
-        });
+      res.status(400).json({
+        greska: "Neuspešan unos izveštaja (možda već postoji za ovaj termin).",
+      });
     }
   },
 );
@@ -66,11 +63,9 @@ router.put(
         return;
       }
       if (postojeci.dermatologId !== req.zaposleni!.id) {
-        res
-          .status(403)
-          .json({
-            greska: "Možete izmeniti samo izveštaje koje ste sami uneli.",
-          });
+        res.status(403).json({
+          greska: "Možete izmeniti samo izveštaje koje ste sami uneli.",
+        });
         return;
       }
       const izmenjen = await prisma.izvestaj.update({
@@ -101,11 +96,9 @@ router.delete(
         return;
       }
       if (postojeci.dermatologId !== req.zaposleni!.id) {
-        res
-          .status(403)
-          .json({
-            greska: "Možete obrisati samo izveštaje koje ste sami uneli.",
-          });
+        res.status(403).json({
+          greska: "Možete obrisati samo izveštaje koje ste sami uneli.",
+        });
         return;
       }
       await prisma.izvestaj.delete({ where: { id: Number(req.params.id) } });
@@ -146,12 +139,12 @@ router.get(
     });
     const izvrsene = await prisma.izvrsenaUsluga.findMany({
       where: { datum: { gte: pocetak, lte: kraj } },
-      include: { usluga: true },
+      select: { cena: true },
     });
     res.json({
       brojTermina,
       brojIzvrsenihUsluga: izvrsene.length,
-      ukupanPrihod: izvrsene.reduce((sum, item) => sum + item.usluga.cena, 0),
+      ukupanPrihod: izvrsene.reduce((sum, item) => sum + item.cena, 0),
     });
   },
 );

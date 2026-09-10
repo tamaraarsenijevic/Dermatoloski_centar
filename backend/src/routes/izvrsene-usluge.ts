@@ -14,11 +14,20 @@ router.post(
   async (req: AuthRequest, res: Response): Promise<void> => {
     const { pacijentId, uslugaId } = req.body;
     try {
+      const usluga = await prisma.usluga.findUnique({
+        where: { id: Number(uslugaId) },
+        select: { cena: true },
+      });
+      if (!usluga) {
+        res.status(400).json({ greska: "Usluga nije pronađena." });
+        return;
+      }
       const nova = await prisma.izvrsenaUsluga.create({
         data: {
           pacijentId: Number(pacijentId),
           uslugaId: Number(uslugaId),
           dermatologId: req.zaposleni!.id,
+          cena: usluga.cena,
         },
       });
       res.status(201).json(nova);

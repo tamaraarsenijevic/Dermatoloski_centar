@@ -119,7 +119,7 @@ router.put(
         async (tx) => {
           const postojeci = await tx.termin.findUnique({
             where: { id: terminId },
-            include: { usluga: { select: { trajanjeMin: true } } },
+            include: { usluga: { select: { trajanjeMin: true, cena: true } } },
           });
           if (!postojeci) throw new Error("TERMIN_NIJE_PRONADJEN");
           if (
@@ -159,6 +159,7 @@ router.put(
                 pacijentId: postojeci.pacijentId,
                 uslugaId: postojeci.uslugaId,
                 dermatologId: postojeci.dermatologId,
+                cena: postojeci.usluga.cena,
               },
             });
           }

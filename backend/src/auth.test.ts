@@ -258,9 +258,9 @@ describe("Backend auth and availability logic", () => {
       aktivan: true,
     } as any);
     vi.mocked(prisma.termin.count).mockResolvedValue(3);
-    vi.mocked(prisma.termin.findMany).mockResolvedValue([
-      { usluga: { cena: 1500 } },
-      { usluga: { cena: 2200 } },
+    vi.mocked(prisma.izvrsenaUsluga.findMany).mockResolvedValue([
+      { cena: 1500 },
+      { cena: 2200 },
     ] as any);
 
     const response = await request(app)
@@ -699,11 +699,15 @@ describe("Backend auth and availability logic", () => {
       id: 9,
       aktivan: true,
     } as any);
+    vi.mocked(prisma.usluga.findUnique).mockResolvedValue({
+      cena: 1800,
+    } as any);
     vi.mocked(prisma.izvrsenaUsluga.create).mockResolvedValue({
       id: 1,
       pacijentId: 3,
       uslugaId: 4,
       dermatologId: 9,
+      cena: 1800,
     } as any);
 
     const response = await request(app)
@@ -715,6 +719,14 @@ describe("Backend auth and availability logic", () => {
       .expect(201);
 
     expect(response.body.id).toBe(1);
+    expect(prisma.izvrsenaUsluga.create).toHaveBeenCalledWith({
+      data: {
+        pacijentId: 3,
+        uslugaId: 4,
+        dermatologId: 9,
+        cena: 1800,
+      },
+    });
   });
 
   it("/api/izvrsene-usluge vraća listu filtriranu po datumu", async () => {
