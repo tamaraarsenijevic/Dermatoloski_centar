@@ -136,7 +136,8 @@
 }
 .status-akcije button,
 .termin-panel-heading button,
-.termin-izvestaj-form > button {
+.termin-izvestaj-form > button,
+.termin-izvestaj-akcije button {
   padding: 9px 13px;
   border: 1px solid var(--color-border);
   border-radius: 6px;
@@ -150,6 +151,18 @@
   border-color: var(--color-accent-strong);
   background: var(--color-accent-strong);
   color: var(--color-surface);
+}
+.status-akcije button.termin-brisi {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.status-akcije button.termin-brisi:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: var(--color-surface);
+}
+.status-akcije button:disabled {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .termin-izvestaj-form {
@@ -173,14 +186,27 @@
   resize: vertical;
   font: inherit;
 }
-.termin-izvestaj-form > button {
+.termin-izvestaj-akcije {
   grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.termin-izvestaj-akcije button:first-child {
   justify-self: start;
   border: 0;
   background: var(--color-accent-strong);
   color: var(--color-surface);
 }
-.termin-izvestaj-form > button:disabled {
+.termin-izvestaj-akcije .izvestaj-brisi {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.termin-izvestaj-akcije .izvestaj-brisi:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: var(--color-surface);
+}
+.termin-izvestaj-akcije button:disabled {
   opacity: 0.6;
   cursor: wait;
 }

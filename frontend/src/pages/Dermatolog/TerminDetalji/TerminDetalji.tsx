@@ -1,9 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
-import { getTermini, izmeniTermin } from "../../../api/termini";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { getTermini, izmeniTermin, obrisiTermin } from "../../../api/termini";
 import {
   dodajIzvestaj,
   getIzvestajZaTermin,
+  obrisiIzvestaj,
   izmeniIzvestaj,
 } from "../../../api/izvestaji";
 import type { Izvestaj, Termin } from "../../../types";
@@ -37,8 +39,11 @@ export default function TerminDetalji() {
   });
   const [ucitavanje, setUcitavanje] = useState(true);
   const [slanje, setSlanje] = useState(false);
+  const [brisanje, setBrisanje] = useState(false);
+  const [brisanjeIzvestaja, setBrisanjeIzvestaja] = useState(false);
   const [greska, setGreska] = useState("");
   const [poruka, setPoruka] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     let ignore = false;
@@ -93,6 +98,28 @@ export default function TerminDetalji() {
     }
   };
 
+  const obrisi = async () => {
+    if (
+      !termin ||
+      !window.confirm("Da li ste sigurni da želite da obrišete termin?")
+    ) {
+      return;
+    }
+    setBrisanje(true);
+    setGreska("");
+    try {
+      await obrisiTermin(termin.id);
+      navigate("/termini");
+    } catch (error) {
+      const poruka = axios.isAxiosError(error)
+        ? error.response?.data?.greska
+        : undefined;
+      setGreska(poruka || "Greška pri brisanju termina.");
+    } finally {
+      setBrisanje(false);
+    }
+  };
+
   const sacuvajIzvestaj = async (e: FormEvent) => {
     e.preventDefault();
     if (!termin) return;
@@ -111,6 +138,31 @@ export default function TerminDetalji() {
       );
     } finally {
       setSlanje(false);
+    }
+  };
+
+  const obrisiPostojeciIzvestaj = async () => {
+    if (
+      !izvestaj ||
+      !window.confirm("Da li ste sigurni da želite da obrišete izveštaj?")
+    ) {
+      return;
+    }
+    setBrisanjeIzvestaja(true);
+    setGreska("");
+    setPoruka("");
+    try {
+      await obrisiIzvestaj(izvestaj.id);
+      setIzvestaj(null);
+      setForma({ dijagnoza: "", terapija: "", anamneza: "" });
+      setPoruka("Izveštaj je uspešno obrisan.");
+    } catch (error) {
+      const greska = axios.isAxiosError(error)
+        ? error.response?.data?.greska
+        : undefined;
+      setGreska(greska || "Greška pri brisanju izveštaja.");
+    } finally {
+      setBrisanjeIzvestaja(false);
     }
   };
 
@@ -226,6 +278,14 @@ export default function TerminDetalji() {
                 {statusNazivi[status]}
               </button>
             ))}
+            <button
+              type="button"
+              className="termin-brisi"
+              onClick={obrisi}
+              disabled={brisanje}
+            >
+              {brisanje ? "Brisanje..." : "Obriši termin"}
+            </button>
           </div>
         </section>
       </div>
@@ -271,13 +331,25 @@ export default function TerminDetalji() {
               onChange={(e) => setForma({ ...forma, anamneza: e.target.value })}
             />
           </label>
-          <button type="submit" disabled={slanje}>
-            {slanje
-              ? "Čuvanje..."
-              : izvestaj
-                ? "Sačuvaj izmene"
-                : "Sačuvaj izveštaj"}
-          </button>
+          <div className="termin-izvestaj-akcije">
+            <button type="submit" disabled={slanje || brisanjeIzvestaja}>
+              {slanje
+                ? "Čuvanje..."
+                : izvestaj
+                  ? "Sačuvaj izmene"
+                  : "Sačuvaj izveštaj"}
+            </button>
+            {izvestaj && (
+              <button
+                type="button"
+                className="izvestaj-brisi"
+                onClick={obrisiPostojeciIzvestaj}
+                disabled={slanje || brisanjeIzvestaja}
+              >
+                {brisanjeIzvestaja ? "Brisanje..." : "Obriši izveštaj"}
+              </button>
+            )}
+          </div>
         </form>
       </section>
     </div>
