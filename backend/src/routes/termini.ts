@@ -18,8 +18,6 @@ export const dermatologImaPreklapanje = async (
   const krajNovog = pocetakNovog + trajanjeMin * 60 * 1000;
   const postojeciTermini = await db.termin.findMany({
     where: {
-      dermatologId,
-      status: "ZAKAZANO",
       ...(izuzmiTerminId !== undefined && { id: { not: izuzmiTerminId } }),
     },
     include: { usluga: { select: { trajanjeMin: true } } },
@@ -124,6 +122,11 @@ router.put(
             include: { usluga: { select: { trajanjeMin: true } } },
           });
           if (!postojeci) throw new Error("TERMIN_NIJE_PRONADJEN");
+          if (
+            ["ZAVRSENO", "OTKAZANO"].includes(postojeci.status) &&
+            (datumVreme !== undefined || status !== undefined)
+          )
+            throw new Error("TERMIN_ZAKLJUCAN");
           const noviPocetak = datumVreme
             ? new Date(datumVreme)
             : postojeci.datumVreme;
@@ -131,7 +134,7 @@ router.put(
           if (Number.isNaN(noviPocetak.getTime()))
             throw new Error("NEISPRAVAN_DATUM");
           if (
-            noviStatus === "ZAKAZANO" &&
+            (datumVreme !== undefined || status !== undefined) &&
             (await dermatologImaPreklapanje(
               postojeci.dermatologId,
               noviPocetak,
@@ -172,6 +175,12 @@ router.put(
       }
       if (error instanceof Error && error.message === "NEISPRAVAN_DATUM") {
         res.status(400).json({ greska: "Datum termina nije ispravan." });
+        return;
+      }
+      if (error instanceof Error && error.message === "TERMIN_ZAKLJUCAN") {
+        res.status(409).json({
+          greska: "Završen ili otkazan termin više nije moguće menjati.",
+        });
         return;
       }
       if (

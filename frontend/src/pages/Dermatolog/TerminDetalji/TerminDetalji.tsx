@@ -108,7 +108,8 @@ export default function TerminDetalji() {
   }, [terminId]);
 
   const promeniStatus = async (status: Termin["status"]) => {
-    if (!termin) return;
+    if (!termin || termin.status === "ZAVRSENO" || termin.status === "OTKAZANO")
+      return;
     setGreska("");
     try {
       await izmeniTermin(termin.id, { status });
@@ -121,7 +122,8 @@ export default function TerminDetalji() {
 
   const sacuvajTermin = async (e: FormEvent) => {
     e.preventDefault();
-    if (!termin) return;
+    if (!termin || termin.status === "ZAVRSENO" || termin.status === "OTKAZANO")
+      return;
     setCuvanjeTermina(true);
     setGreska("");
     setPoruka("");
@@ -246,6 +248,9 @@ export default function TerminDetalji() {
   }
   if (!termin) return null;
 
+  const terminZakljucan =
+    termin.status === "ZAVRSENO" || termin.status === "OTKAZANO";
+
   return (
     <div className="termin-detalji">
       <div className="termin-detalji-header">
@@ -286,6 +291,7 @@ export default function TerminDetalji() {
                           })
                         }
                         required
+                        disabled={terminZakljucan}
                       />
                     </label>
                     <label>
@@ -300,10 +306,14 @@ export default function TerminDetalji() {
                           })
                         }
                         required
+                        disabled={terminZakljucan}
                       />
                     </label>
                   </div>
-                  <button type="submit" disabled={cuvanjeTermina}>
+                  <button
+                    type="submit"
+                    disabled={cuvanjeTermina || terminZakljucan}
+                  >
                     {cuvanjeTermina ? "Čuvanje..." : "Izmeni termin"}
                   </button>
                 </form>
@@ -365,6 +375,7 @@ export default function TerminDetalji() {
                 type="button"
                 className={termin.status === status ? "status-aktivan" : ""}
                 onClick={() => promeniStatus(status)}
+                disabled={terminZakljucan}
               >
                 {statusNazivi[status]}
               </button>
@@ -406,6 +417,7 @@ export default function TerminDetalji() {
                 setForma({ ...forma, dijagnoza: e.target.value })
               }
               required
+              disabled={terminZakljucan}
             />
           </label>
           <label>
@@ -413,6 +425,7 @@ export default function TerminDetalji() {
             <textarea
               value={forma.terapija}
               onChange={(e) => setForma({ ...forma, terapija: e.target.value })}
+              disabled={terminZakljucan}
             />
           </label>
           <label>
@@ -420,10 +433,14 @@ export default function TerminDetalji() {
             <textarea
               value={forma.anamneza}
               onChange={(e) => setForma({ ...forma, anamneza: e.target.value })}
+              disabled={terminZakljucan}
             />
           </label>
           <div className="termin-izvestaj-akcije">
-            <button type="submit" disabled={slanje || brisanjeIzvestaja}>
+            <button
+              type="submit"
+              disabled={slanje || brisanjeIzvestaja || terminZakljucan}
+            >
               {slanje
                 ? "Čuvanje..."
                 : izvestaj
@@ -435,7 +452,7 @@ export default function TerminDetalji() {
                 type="button"
                 className="izvestaj-brisi"
                 onClick={obrisiPostojeciIzvestaj}
-                disabled={slanje || brisanjeIzvestaja}
+                disabled={slanje || brisanjeIzvestaja || terminZakljucan}
               >
                 {brisanjeIzvestaja ? "Brisanje..." : "Obriši izveštaj"}
               </button>
