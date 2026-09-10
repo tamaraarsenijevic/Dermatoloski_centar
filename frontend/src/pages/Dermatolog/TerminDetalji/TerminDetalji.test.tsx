@@ -23,6 +23,7 @@ vi.mock("react-router-dom", async () => {
   return {
     ...actual,
     useParams: () => ({ id: "1" }),
+    useNavigate: () => vi.fn(),
     Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
       <a href={to}>{children}</a>
     ),
@@ -179,6 +180,102 @@ describe("TerminDetalji", () => {
     });
   });
 
+  it("menja datum i vreme termina", async () => {
+    const mockTermin: Termin = {
+      id: 1,
+      status: "ZAKAZANO",
+      datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
+      dermatolog: { ime: "Petar", prezime: "Petrović" },
+      pacijent: {
+        id: 1,
+        ime: "Jovana",
+        prezime: "Jovanović",
+        jmbg: "1234567890123",
+        telefon: "0601234567",
+        email: "jovana@test.com",
+      },
+      usluga: { id: 1, naziv: "Kontrola", trajanjeMin: 30, cena: 1500 },
+    };
+
+    vi.mocked(terminiApi.getTermini).mockResolvedValue(
+      makeAxiosResponse([mockTermin]),
+    );
+    vi.mocked(izvestajiApi.getIzvestajZaTermin).mockRejectedValue(
+      new Error("Nema izvestaja"),
+    );
+    vi.mocked(terminiApi.izmeniTermin).mockResolvedValue(
+      makeAxiosResponse({
+        ...mockTermin,
+        datumVreme: new Date("2026-09-03T11:30:00Z").toISOString(),
+      }),
+    );
+
+    const user = userEvent.setup();
+    render(<TerminDetalji />);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("Datum")).toHaveValue("2026-09-02");
+    });
+    const datum = screen.getByLabelText("Datum");
+    const vreme = screen.getByLabelText("Vreme");
+    await user.clear(datum);
+    await user.type(datum, "2026-09-03");
+    await user.clear(vreme);
+    await user.type(vreme, "11:30");
+    fireEvent.click(screen.getByRole("button", { name: "Izmeni termin" }));
+
+    await waitFor(() => {
+      expect(terminiApi.izmeniTermin).toHaveBeenCalledWith(1, {
+        datumVreme: new Date("2026-09-03T11:30").toISOString(),
+      });
+    });
+  });
+
+  it("briše termin nakon potvrde", async () => {
+    const mockTermin: Termin = {
+      id: 1,
+      status: "ZAKAZANO",
+      datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
+      dermatolog: { ime: "Petar", prezime: "Petrović" },
+      pacijent: {
+        id: 1,
+        ime: "Jovana",
+        prezime: "Jovanović",
+        jmbg: "1234567890123",
+        telefon: "0601234567",
+        email: "jovana@test.com",
+      },
+      usluga: { id: 1, naziv: "Kontrola", trajanjeMin: 30, cena: 1500 },
+    };
+
+    vi.mocked(terminiApi.getTermini).mockResolvedValue(
+      makeAxiosResponse([mockTermin]),
+    );
+    vi.mocked(izvestajiApi.getIzvestajZaTermin).mockRejectedValue(
+      new Error("Nema izvestaja"),
+    );
+    vi.mocked(terminiApi.obrisiTermin).mockResolvedValue(
+      makeAxiosResponse({ poruka: "Termin obrisan." }),
+    );
+    vi.stubGlobal(
+      "confirm",
+      vi.fn(() => true),
+    );
+
+    render(<TerminDetalji />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Obriši termin" }),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Obriši termin" }));
+
+    await waitFor(() => {
+      expect(terminiApi.obrisiTermin).toHaveBeenCalledWith(1);
+    });
+  });
+
   it("kreira novi izveštaj", async () => {
     const mockTermini: Termin[] = [
       {
@@ -292,6 +389,59 @@ describe("TerminDetalji", () => {
 
     await waitFor(() => {
       expect(izvestajiApi.izmeniIzvestaj).toHaveBeenCalled();
+    });
+  });
+
+  it("briše postojeći izveštaj nakon potvrde", async () => {
+    const mockTermin: Termin = {
+      id: 1,
+      status: "ZAVRSENO",
+      datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
+      dermatolog: { ime: "Petar", prezime: "Petrović" },
+      pacijent: {
+        id: 1,
+        ime: "Jovana",
+        prezime: "Jovanović",
+        jmbg: "1234567890123",
+        telefon: "0601234567",
+        email: "jovana@test.com",
+      },
+      usluga: { id: 1, naziv: "Kontrola", trajanjeMin: 30, cena: 1500 },
+    };
+    const mockIzvestaj: Izvestaj = {
+      id: 7,
+      dijagnoza: "Akne",
+      terapija: "Terapija",
+      anamneza: "Anamneza",
+      kreiranoAt: new Date("2026-09-02T10:00:00Z").toISOString(),
+      dermatolog: { ime: "Petar", prezime: "Petrović" },
+    };
+
+    vi.mocked(terminiApi.getTermini).mockResolvedValue(
+      makeAxiosResponse([mockTermin]),
+    );
+    vi.mocked(izvestajiApi.getIzvestajZaTermin).mockResolvedValue(
+      makeAxiosResponse(mockIzvestaj),
+    );
+    vi.mocked(izvestajiApi.obrisiIzvestaj).mockResolvedValue(
+      makeAxiosResponse({ poruka: "Izveštaj obrisan." }),
+    );
+    vi.stubGlobal(
+      "confirm",
+      vi.fn(() => true),
+    );
+
+    render(<TerminDetalji />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Obriši izveštaj" }),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Obriši izveštaj" }));
+
+    await waitFor(() => {
+      expect(izvestajiApi.obrisiIzvestaj).toHaveBeenCalledWith(7);
     });
   });
 

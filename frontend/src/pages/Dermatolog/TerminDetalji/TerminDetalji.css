@@ -108,6 +108,57 @@
   text-align: right;
   font-weight: 600;
 }
+.termin-podaci .termin-izmena-red {
+  display: block;
+  width: 100%;
+}
+.termin-izmena-red dd {
+  width: 100%;
+}
+
+.termin-vreme-form {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.termin-vreme-polja {
+  display: flex;
+  gap: 8px;
+}
+.termin-vreme-form label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  color: var(--color-disabled);
+  font-size: 12px;
+  font-weight: 700;
+}
+.termin-vreme-form input {
+  min-width: 130px;
+  padding: 7px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+}
+.termin-vreme-form button {
+  padding: 8px 11px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--color-accent-strong);
+  color: var(--color-surface);
+  font: inherit;
+  font-weight: 700;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.termin-vreme-form button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
 
 .status-zakazano,
 .status-otkazano,
@@ -136,7 +187,8 @@
 }
 .status-akcije button,
 .termin-panel-heading button,
-.termin-izvestaj-form > button {
+.termin-izvestaj-form > button,
+.termin-izvestaj-akcije button {
   padding: 9px 13px;
   border: 1px solid var(--color-border);
   border-radius: 6px;
@@ -150,6 +202,18 @@
   border-color: var(--color-accent-strong);
   background: var(--color-accent-strong);
   color: var(--color-surface);
+}
+.status-akcije button.termin-brisi {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.status-akcije button.termin-brisi:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: var(--color-surface);
+}
+.status-akcije button:disabled {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .termin-izvestaj-form {
@@ -173,14 +237,27 @@
   resize: vertical;
   font: inherit;
 }
-.termin-izvestaj-form > button {
+.termin-izvestaj-akcije {
   grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.termin-izvestaj-akcije button:first-child {
   justify-self: start;
   border: 0;
   background: var(--color-accent-strong);
   color: var(--color-surface);
 }
-.termin-izvestaj-form > button:disabled {
+.termin-izvestaj-akcije .izvestaj-brisi {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+.termin-izvestaj-akcije .izvestaj-brisi:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: var(--color-surface);
+}
+.termin-izvestaj-akcije button:disabled {
   opacity: 0.6;
   cursor: wait;
 }
@@ -194,5 +271,22 @@
   }
   .termin-detalji-header h2 {
     font-size: 24px;
+  }
+  .termin-vreme-polja {
+    flex-direction: column;
+  }
+  .termin-vreme-form {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .termin-vreme-polja {
+    width: 100%;
+  }
+  .termin-vreme-polja label {
+    flex: 1;
+  }
+  .termin-vreme-form input {
+    width: 100%;
+    min-width: 0;
   }
 }

@@ -481,12 +481,22 @@ describe("Backend auth and availability logic", () => {
           findUnique: vi.fn().mockResolvedValue({
             id: 1,
             dermatologId: 9,
+            pacijentId: 3,
+            uslugaId: 4,
             datumVreme: new Date("2026-09-02T10:00:00Z"),
             status: "ZAKAZANO",
             usluga: { trajanjeMin: 30 },
           }),
           update: vi.fn().mockResolvedValue({ id: 1, status: "ZAVRSENO" }),
           findMany: vi.fn().mockResolvedValue([]),
+        },
+        izvrsenaUsluga: {
+          create: vi.fn().mockResolvedValue({
+            id: 88,
+            pacijentId: 3,
+            uslugaId: 4,
+            dermatologId: 9,
+          }),
         },
       } as any;
       return callback(tx);
@@ -501,6 +511,54 @@ describe("Backend auth and availability logic", () => {
       .expect(200);
 
     expect(response.body.status).toBe("ZAVRSENO");
+  });
+
+  it("/api/termini/:id pri završetku termina kreira zapis u izvrsenim uslugama", async () => {
+    const txCreate = vi.fn().mockResolvedValue({
+      id: 99,
+      pacijentId: 3,
+      uslugaId: 4,
+      dermatologId: 9,
+    });
+
+    vi.mocked(prisma.$transaction).mockImplementation(async (callback) => {
+      const tx = {
+        termin: {
+          findUnique: vi.fn().mockResolvedValue({
+            id: 1,
+            dermatologId: 9,
+            pacijentId: 3,
+            uslugaId: 4,
+            datumVreme: new Date("2026-09-02T10:00:00Z"),
+            status: "ZAKAZANO",
+            usluga: { trajanjeMin: 30 },
+          }),
+          update: vi.fn().mockResolvedValue({ id: 1, status: "ZAVRSENO" }),
+          findMany: vi.fn().mockResolvedValue([]),
+        },
+        izvrsenaUsluga: {
+          create: txCreate,
+        },
+      } as any;
+      return callback(tx);
+    });
+
+    const response = await request(app)
+      .put("/api/termini/1")
+      .send({ status: "ZAVRSENO" })
+      .set("Cookie", [
+        `token=${jwt.sign({ id: 9, uloga: "DERMATOLOG", email: "doktor@test.com" }, "test-secret")}`,
+      ])
+      .expect(200);
+
+    expect(response.body.status).toBe("ZAVRSENO");
+    expect(txCreate).toHaveBeenCalledWith({
+      data: {
+        pacijentId: 3,
+        uslugaId: 4,
+        dermatologId: 9,
+      },
+    });
   });
 
   it("/api/termini/:id briše termin", async () => {

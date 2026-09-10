@@ -99,12 +99,9 @@ router.post(
         (error.message === "PREKLAPANJE_TERMINA" ||
           (error as Prisma.PrismaClientKnownRequestError).code === "P2034")
       ) {
-        res
-          .status(409)
-          .json({
-            greska:
-              "Ne možete zakazati termin, u tom terminu je zakazan drugi.",
-          });
+        res.status(409).json({
+          greska: "Ne možete zakazati termin, u tom terminu je zakazan drugi.",
+        });
         return;
       }
       res.status(400).json({ greska: "Neuspešno zakazivanje termina." });
@@ -144,7 +141,7 @@ router.put(
             ))
           )
             throw new Error("PREKLAPANJE_TERMINA");
-          return tx.termin.update({
+          const izmenjen = await tx.termin.update({
             where: { id: terminId },
             data: {
               ...(datumVreme && { datumVreme: noviPocetak }),
@@ -152,6 +149,18 @@ router.put(
               ...(napomena !== undefined && { napomena }),
             },
           });
+
+          if (noviStatus === "ZAVRSENO" && postojeci.status !== "ZAVRSENO") {
+            await tx.izvrsenaUsluga.create({
+              data: {
+                pacijentId: postojeci.pacijentId,
+                uslugaId: postojeci.uslugaId,
+                dermatologId: postojeci.dermatologId,
+              },
+            });
+          }
+
+          return izmenjen;
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
       );
@@ -170,12 +179,9 @@ router.put(
         (error.message === "PREKLAPANJE_TERMINA" ||
           (error as Prisma.PrismaClientKnownRequestError).code === "P2034")
       ) {
-        res
-          .status(409)
-          .json({
-            greska:
-              "Ne možete zakazati termin, u tom terminu je zakazan drugi.",
-          });
+        res.status(409).json({
+          greska: "Ne možete zakazati termin, u tom terminu je zakazan drugi.",
+        });
         return;
       }
       res.status(400).json({ greska: "Neuspešna izmena termina." });

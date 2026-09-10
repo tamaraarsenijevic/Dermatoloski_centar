@@ -1,9 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
-import { getTermini, izmeniTermin } from "../../../api/termini";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { getTermini, izmeniTermin, obrisiTermin } from "../../../api/termini";
 import {
   dodajIzvestaj,
   getIzvestajZaTermin,
+  obrisiIzvestaj,
   izmeniIzvestaj,
 } from "../../../api/izvestaji";
 import type { Izvestaj, Termin } from "../../../types";
@@ -25,6 +27,21 @@ const formatDatumIVreme = (vrednost: string) =>
     minute: "2-digit",
   });
 
+const formatZaDatum = (vrednost: string) => {
+  const datum = new Date(vrednost);
+  const godina = datum.getFullYear();
+  const mesec = String(datum.getMonth() + 1).padStart(2, "0");
+  const dan = String(datum.getDate()).padStart(2, "0");
+  return `${godina}-${mesec}-${dan}`;
+};
+
+const formatZaVreme = (vrednost: string) => {
+  const datum = new Date(vrednost);
+  return `${String(datum.getHours()).padStart(2, "0")}:${String(
+    datum.getMinutes(),
+  ).padStart(2, "0")}`;
+};
+
 export default function TerminDetalji() {
   const { id } = useParams();
   const terminId = Number(id);
@@ -35,10 +52,15 @@ export default function TerminDetalji() {
     terapija: "",
     anamneza: "",
   });
+  const [terminForma, setTerminForma] = useState({ datum: "", vreme: "" });
   const [ucitavanje, setUcitavanje] = useState(true);
   const [slanje, setSlanje] = useState(false);
+  const [cuvanjeTermina, setCuvanjeTermina] = useState(false);
+  const [brisanje, setBrisanje] = useState(false);
+  const [brisanjeIzvestaja, setBrisanjeIzvestaja] = useState(false);
   const [greska, setGreska] = useState("");
   const [poruka, setPoruka] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     let ignore = false;
@@ -59,6 +81,10 @@ export default function TerminDetalji() {
         );
         if (ignore) return;
         setTermin(pronadjen);
+        setTerminForma({
+          datum: formatZaDatum(pronadjen.datumVreme),
+          vreme: formatZaVreme(pronadjen.datumVreme),
+        });
         setIzvestaj(izvestajRes?.data ?? null);
         if (izvestajRes?.data) {
           setForma({
@@ -93,6 +119,59 @@ export default function TerminDetalji() {
     }
   };
 
+  const sacuvajTermin = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!termin) return;
+    setCuvanjeTermina(true);
+    setGreska("");
+    setPoruka("");
+    try {
+      const datumVreme = new Date(`${terminForma.datum}T${terminForma.vreme}`);
+      if (Number.isNaN(datumVreme.getTime())) {
+        setGreska("Datum i vreme termina nisu ispravni.");
+        return;
+      }
+      const res = await izmeniTermin(termin.id, {
+        datumVreme: datumVreme.toISOString(),
+      });
+      setTermin({ ...termin, ...res.data });
+      setTerminForma({
+        datum: formatZaDatum(res.data.datumVreme),
+        vreme: formatZaVreme(res.data.datumVreme),
+      });
+      setPoruka("Datum i vreme termina su uspešno izmenjeni.");
+    } catch (error) {
+      const poruka = axios.isAxiosError(error)
+        ? error.response?.data?.greska
+        : undefined;
+      setGreska(poruka || "Greška pri izmeni datuma i vremena termina.");
+    } finally {
+      setCuvanjeTermina(false);
+    }
+  };
+
+  const obrisi = async () => {
+    if (
+      !termin ||
+      !window.confirm("Da li ste sigurni da želite da obrišete termin?")
+    ) {
+      return;
+    }
+    setBrisanje(true);
+    setGreska("");
+    try {
+      await obrisiTermin(termin.id);
+      navigate("/termini");
+    } catch (error) {
+      const poruka = axios.isAxiosError(error)
+        ? error.response?.data?.greska
+        : undefined;
+      setGreska(poruka || "Greška pri brisanju termina.");
+    } finally {
+      setBrisanje(false);
+    }
+  };
+
   const sacuvajIzvestaj = async (e: FormEvent) => {
     e.preventDefault();
     if (!termin) return;
@@ -111,6 +190,31 @@ export default function TerminDetalji() {
       );
     } finally {
       setSlanje(false);
+    }
+  };
+
+  const obrisiPostojeciIzvestaj = async () => {
+    if (
+      !izvestaj ||
+      !window.confirm("Da li ste sigurni da želite da obrišete izveštaj?")
+    ) {
+      return;
+    }
+    setBrisanjeIzvestaja(true);
+    setGreska("");
+    setPoruka("");
+    try {
+      await obrisiIzvestaj(izvestaj.id);
+      setIzvestaj(null);
+      setForma({ dijagnoza: "", terapija: "", anamneza: "" });
+      setPoruka("Izveštaj je uspešno obrisan.");
+    } catch (error) {
+      const greska = axios.isAxiosError(error)
+        ? error.response?.data?.greska
+        : undefined;
+      setGreska(greska || "Greška pri brisanju izveštaja.");
+    } finally {
+      setBrisanjeIzvestaja(false);
     }
   };
 
@@ -166,6 +270,45 @@ export default function TerminDetalji() {
         <section className="termin-detalji-panel">
           <h3>Podaci o pacijentu</h3>
           <dl className="termin-podaci">
+            <div className="termin-izmena-red">
+              <dd>
+                <form onSubmit={sacuvajTermin} className="termin-vreme-form">
+                  <div className="termin-vreme-polja">
+                    <label>
+                      Datum
+                      <input
+                        type="date"
+                        value={terminForma.datum}
+                        onChange={(e) =>
+                          setTerminForma({
+                            ...terminForma,
+                            datum: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </label>
+                    <label>
+                      Vreme
+                      <input
+                        type="time"
+                        value={terminForma.vreme}
+                        onChange={(e) =>
+                          setTerminForma({
+                            ...terminForma,
+                            vreme: e.target.value,
+                          })
+                        }
+                        required
+                      />
+                    </label>
+                  </div>
+                  <button type="submit" disabled={cuvanjeTermina}>
+                    {cuvanjeTermina ? "Čuvanje..." : "Izmeni termin"}
+                  </button>
+                </form>
+              </dd>
+            </div>
             <div>
               <dt>Ime i prezime</dt>
               <dd>
@@ -226,6 +369,14 @@ export default function TerminDetalji() {
                 {statusNazivi[status]}
               </button>
             ))}
+            <button
+              type="button"
+              className="termin-brisi"
+              onClick={obrisi}
+              disabled={brisanje}
+            >
+              {brisanje ? "Brisanje..." : "Obriši termin"}
+            </button>
           </div>
         </section>
       </div>
@@ -271,13 +422,25 @@ export default function TerminDetalji() {
               onChange={(e) => setForma({ ...forma, anamneza: e.target.value })}
             />
           </label>
-          <button type="submit" disabled={slanje}>
-            {slanje
-              ? "Čuvanje..."
-              : izvestaj
-                ? "Sačuvaj izmene"
-                : "Sačuvaj izveštaj"}
-          </button>
+          <div className="termin-izvestaj-akcije">
+            <button type="submit" disabled={slanje || brisanjeIzvestaja}>
+              {slanje
+                ? "Čuvanje..."
+                : izvestaj
+                  ? "Sačuvaj izmene"
+                  : "Sačuvaj izveštaj"}
+            </button>
+            {izvestaj && (
+              <button
+                type="button"
+                className="izvestaj-brisi"
+                onClick={obrisiPostojeciIzvestaj}
+                disabled={slanje || brisanjeIzvestaja}
+              >
+                {brisanjeIzvestaja ? "Brisanje..." : "Obriši izveštaj"}
+              </button>
+            )}
+          </div>
         </form>
       </section>
     </div>

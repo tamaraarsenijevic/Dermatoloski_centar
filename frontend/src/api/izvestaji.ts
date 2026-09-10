@@ -17,6 +17,9 @@ export const izmeniIzvestaj = (
   },
 ) => http.put<Izvestaj>(`/izvestaji/${id}`, data);
 
+export const obrisiIzvestaj = (id: number) =>
+  http.delete<{ poruka: string }>(`/izvestaji/${id}`);
+
 export const getIzvestajZaTermin = (terminId: number) =>
   http.get<Izvestaj>(`/izvestaji/termin/${terminId}`);
 
