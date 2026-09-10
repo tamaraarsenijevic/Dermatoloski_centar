@@ -105,6 +105,15 @@ export default function UslugeLista() {
     }
   };
 
+  const handlePromeniStatus = async (usluga: Usluga) => {
+    try {
+      await izmeniUslugu(usluga.id, { aktivan: usluga.aktivan === false });
+      await ucitajUsluge();
+    } catch {
+      setGreska("Neuspešna promena statusa usluge.");
+    }
+  };
+
   return (
     <div className="usluge-page">
       <div className="usluge-header">
@@ -217,8 +226,18 @@ export default function UslugeLista() {
       ) : (
         <div className="usluge-grid">
           {usluge.map((u) => (
-            <article className="usluga-card" key={u.id}>
-              <h3>{u.naziv}</h3>
+            <article
+              className={`usluga-card ${u.aktivan !== false ? "" : "usluga-card-neaktivna"}`}
+              key={u.id}
+            >
+              <div className="usluga-card-heading">
+                <h3>{u.naziv}</h3>
+                <span
+                  className={`usluga-status ${u.aktivan !== false ? "aktivna" : "neaktivna"}`}
+                >
+                  {u.aktivan !== false ? "Aktivna" : "Neaktivna"}
+                </span>
+              </div>
               <p className="usluga-description">
                 {u.opis || "Bez opisa usluge."}
               </p>
@@ -232,6 +251,12 @@ export default function UslugeLista() {
                   onClick={() => handleIzmeniKlik(u)}
                 >
                   Izmeni
+                </button>
+                <button
+                  className="usluga-action"
+                  onClick={() => handlePromeniStatus(u)}
+                >
+                  {u.aktivan !== false ? "Deaktiviraj" : "Aktiviraj"}
                 </button>
                 <button
                   className="usluga-action usluga-action-danger"

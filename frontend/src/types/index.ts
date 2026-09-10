@@ -8,7 +8,7 @@ export interface Zaposleni {
   email: string;
   telefon: string;
   uloga: Uloga;
-  aktivan: boolean;
+  aktivan?: boolean;
 }
 
 export interface Pacijent {
@@ -27,6 +27,7 @@ export interface Usluga {
   opis?: string;
   trajanjeMin: number;
   cena: number;
+  aktivan?: boolean;
 }
 
 export interface Termin {

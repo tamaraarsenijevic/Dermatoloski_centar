@@ -60,6 +60,7 @@ model Usluga {
   opis        String?
   trajanjeMin Int      @default(30)
   cena        Float
+  aktivan     Boolean  @default(true)
   termini     Termin[]
   izvrseneUsluge  IzvrsenaUsluga[]
 }
@@ -105,6 +106,7 @@ model Izvestaj {
 model IzvrsenaUsluga {
   id           Int      @id @default(autoincrement())
   datum        DateTime @default(now())
+  cena         Float
 
   pacijentId   Int
   pacijent     Pacijent @relation(fields: [pacijentId], references: [id])

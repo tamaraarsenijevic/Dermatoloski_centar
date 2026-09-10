@@ -38,20 +38,19 @@ router.get(
         return grupe;
       }, {}),
     ).sort((a, b) => b.broj - a.broj);
-    const zavrseniTermini = await prisma.termin.findMany({
+    const izvrseneUsluge = await prisma.izvrsenaUsluga.findMany({
       where: {
-        datumVreme: { gte: pocetak, lte: kraj },
-        status: "ZAVRSENO",
+        datum: { gte: pocetak, lte: kraj },
       },
-      select: { usluga: { select: { cena: true } } },
+      select: { cena: true },
     });
     res.json({
       brojTermina,
       brojZavrsenihTermina,
       terminiPoUslugama,
-      brojIzvrsenihUsluga: zavrseniTermini.length,
-      ukupanPrihod: zavrseniTermini.reduce(
-        (sum, termin) => sum + termin.usluga.cena,
+      brojIzvrsenihUsluga: izvrseneUsluge.length,
+      ukupanPrihod: izvrseneUsluge.reduce(
+        (sum, usluga) => sum + usluga.cena,
         0,
       ),
     });

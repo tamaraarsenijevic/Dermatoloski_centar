@@ -103,7 +103,7 @@ export default function Termini() {
       ]);
       setTermini(terminiRes.data);
       setPacijenti(pacijentiRes.data);
-      setUsluge(uslugeRes.data);
+      setUsluge(uslugeRes.data.filter((usluga) => usluga.aktivan !== false));
     } catch {
       setGreska("Greška pri učitavanju podataka.");
     } finally {
@@ -125,7 +125,9 @@ export default function Termini() {
         if (!ignore) {
           setTermini(terminiRes.data);
           setPacijenti(pacijentiRes.data);
-          setUsluge(uslugeRes.data);
+          setUsluge(
+            uslugeRes.data.filter((usluga) => usluga.aktivan !== false),
+          );
         }
       } catch {
         if (!ignore) setGreska("Greška pri učitavanju podataka.");

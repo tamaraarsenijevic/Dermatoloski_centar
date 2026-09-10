@@ -8,6 +8,7 @@ export const dodajUslugu = (data: {
   opis?: string;
   trajanjeMin?: number;
   cena: number;
+  aktivan?: boolean;
 }) => http.post<Usluga>("/usluge", data);
 
 export const izmeniUslugu = (id: number, data: Partial<Usluga>) =>
