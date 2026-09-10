@@ -156,7 +156,7 @@
   cursor: pointer;
 }
 .termin-vreme-form button:disabled {
-  cursor: wait;
+  cursor: default;
   opacity: 0.6;
 }
 
@@ -212,7 +212,7 @@
   color: var(--color-surface);
 }
 .status-akcije button:disabled {
-  cursor: wait;
+  cursor: default;
   opacity: 0.6;
 }
 
@@ -259,7 +259,7 @@
 }
 .termin-izvestaj-akcije button:disabled {
   opacity: 0.6;
-  cursor: wait;
+  cursor: default;
 }
 @media (max-width: 720px) {
   .termin-detalji-header,

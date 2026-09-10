@@ -130,6 +130,9 @@ describe("TerminDetalji", () => {
     await waitFor(() => {
       expect(screen.getByDisplayValue("Akne")).toBeInTheDocument();
       expect(screen.getByDisplayValue("Lokalna primena")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Sačuvaj izmene" }),
+      ).toBeDisabled();
     });
   });
 
@@ -280,7 +283,7 @@ describe("TerminDetalji", () => {
     const mockTermini: Termin[] = [
       {
         id: 1,
-        status: "ZAVRSENO",
+        status: "ZAKAZANO",
         datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
         dermatolog: { ime: "Petar", prezime: "Petrović" },
         pacijent: {
@@ -334,7 +337,7 @@ describe("TerminDetalji", () => {
     const mockTermini: Termin[] = [
       {
         id: 1,
-        status: "ZAVRSENO",
+        status: "ZAKAZANO",
         datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
         dermatolog: { ime: "Petar", prezime: "Petrović" },
         pacijent: {
@@ -395,7 +398,7 @@ describe("TerminDetalji", () => {
   it("briše postojeći izveštaj nakon potvrde", async () => {
     const mockTermin: Termin = {
       id: 1,
-      status: "ZAVRSENO",
+      status: "ZAKAZANO",
       datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
       dermatolog: { ime: "Petar", prezime: "Petrović" },
       pacijent: {
