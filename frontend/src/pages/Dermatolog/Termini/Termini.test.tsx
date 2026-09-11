@@ -71,7 +71,7 @@ describe("Termini", () => {
       {
         id: 1,
         status: "ZAKAZANO",
-        datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
+        datumVreme: new Date("2026-09-08T10:00:00Z").toISOString(),
         dermatolog: { ime: "Petar", prezime: "Petrović" },
         pacijent: {
           id: 1,

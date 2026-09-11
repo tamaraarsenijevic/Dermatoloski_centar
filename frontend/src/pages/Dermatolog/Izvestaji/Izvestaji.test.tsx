@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import type { AxiosResponse } from "axios";
-import userEvent from "@testing-library/user-event";
 import type { Izvestaj, Termin } from "../../../types";
 import IzvestajiStranica from "./Izvestaji";
 import * as terminiApi from "../../../api/termini";
@@ -128,7 +127,7 @@ describe("IzvestajiStranica", () => {
     });
   });
 
-  it("popunjava formu kada korisnik izabere termin", async () => {
+  it("prikazuje postojeći izveštaj bez mogućnosti izmene", async () => {
     const mockTermini: Termin[] = [
       {
         id: 1,
@@ -173,147 +172,11 @@ describe("IzvestajiStranica", () => {
     fireEvent.click(terminBtn);
 
     await waitFor(() => {
-      const dijagnozaField = screen.getByDisplayValue(
-        "Postojeći nalaz",
-      ) as HTMLTextAreaElement;
-      expect(dijagnozaField).toBeInTheDocument();
-    });
-  });
-
-  it("kreira novi izveštaj", async () => {
-    const mockTermini: Termin[] = [
-      {
-        id: 1,
-        status: "ZAVRSENO",
-        datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
-        dermatolog: { ime: "Petar", prezime: "Petrović" },
-        pacijent: {
-          id: 1,
-          ime: "Jovana",
-          prezime: "Jovanović",
-          jmbg: "1234567890123",
-          telefon: "0601234567",
-          email: "jovana@test.com",
-        },
-        usluga: { id: 1, naziv: "Kontrola", trajanjeMin: 30, cena: 1500 },
-      },
-    ];
-
-    vi.mocked(terminiApi.getTermini).mockResolvedValue(
-      makeAxiosResponse(mockTermini),
-    );
-    vi.mocked(izvestajiApi.getIzvestajZaTermin).mockRejectedValue(
-      new Error("Nema izvestaja"),
-    );
-    vi.mocked(izvestajiApi.dodajIzvestaj).mockResolvedValue(
-      makeAxiosResponse<Izvestaj>({
-        id: 1,
-        dijagnoza: "Novi nalaz",
-        kreiranoAt: new Date("2026-09-02T10:00:00Z").toISOString(),
-        dermatolog: { ime: "Petar", prezime: "Petrović" },
-      }),
-    );
-
-    const user = userEvent.setup();
-    render(<IzvestajiStranica />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Jovana Jovanović")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByText("Jovana Jovanović"));
-
-    await waitFor(() => {
-      const dijagnozaField = screen.getByLabelText("Dijagnoza");
-      expect(dijagnozaField).toBeInTheDocument();
-    });
-
-    const dijagnozaField = screen.getAllByRole("textbox")[0];
-    await user.clear(dijagnozaField);
-    await user.type(dijagnozaField, "Novi nalaz");
-
-    const submitBtn = screen.getByRole("button", {
-      name: /sačuvaj|ažuriraj/i,
-    });
-    fireEvent.click(submitBtn);
-
-    await waitFor(() => {
-      expect(izvestajiApi.dodajIzvestaj).toHaveBeenCalled();
-    });
-  });
-
-  it("ažurira postojeći izveštaj", async () => {
-    const mockTermini: Termin[] = [
-      {
-        id: 1,
-        status: "ZAVRSENO",
-        datumVreme: new Date("2026-09-02T10:00:00Z").toISOString(),
-        dermatolog: { ime: "Petar", prezime: "Petrović" },
-        pacijent: {
-          id: 1,
-          ime: "Jovana",
-          prezime: "Jovanović",
-          jmbg: "1234567890123",
-          telefon: "0601234567",
-          email: "jovana@test.com",
-        },
-        usluga: { id: 1, naziv: "Kontrola", trajanjeMin: 30, cena: 1500 },
-      },
-    ];
-
-    const mockIzvestaj: Izvestaj = {
-      id: 1,
-      dijagnoza: "Stari nalaz",
-      terapija: "Terapija",
-      anamneza: "Anamneza",
-      kreiranoAt: new Date("2026-09-02T10:00:00Z").toISOString(),
-      dermatolog: { ime: "Petar", prezime: "Petrović" },
-    };
-
-    vi.mocked(terminiApi.getTermini).mockResolvedValue(
-      makeAxiosResponse(mockTermini),
-    );
-    vi.mocked(izvestajiApi.getIzvestajZaTermin).mockResolvedValue(
-      makeAxiosResponse<Izvestaj>(mockIzvestaj),
-    );
-    vi.mocked(izvestajiApi.izmeniIzvestaj).mockResolvedValue(
-      makeAxiosResponse<Izvestaj>({
-        id: 1,
-        dijagnoza: "Novi nalaz",
-        kreiranoAt: new Date("2026-09-02T10:00:00Z").toISOString(),
-        dermatolog: { ime: "Petar", prezime: "Petrović" },
-      }),
-    );
-
-    const user = userEvent.setup();
-    render(<IzvestajiStranica />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Jovana Jovanović")).toBeInTheDocument();
-    });
-
-    fireEvent.click(screen.getByText("Jovana Jovanović"));
-
-    await waitFor(() => {
-      const dijagnozaField = screen.getByDisplayValue(
-        "Stari nalaz",
-      ) as HTMLTextAreaElement;
-      expect(dijagnozaField).toBeInTheDocument();
-    });
-
-    const dijagnozaField = screen.getByDisplayValue(
-      "Stari nalaz",
-    ) as HTMLTextAreaElement;
-    await user.clear(dijagnozaField);
-    await user.type(dijagnozaField, "Novi nalaz");
-
-    const submitBtn = screen.getByRole("button", {
-      name: /sačuvaj|ažuriraj/i,
-    });
-    fireEvent.click(submitBtn);
-
-    await waitFor(() => {
-      expect(izvestajiApi.izmeniIzvestaj).toHaveBeenCalled();
+      expect(screen.getByText("Postojeći nalaz")).toBeInTheDocument();
+      expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /sačuvaj|ažuriraj/i }),
+      ).not.toBeInTheDocument();
     });
   });
 

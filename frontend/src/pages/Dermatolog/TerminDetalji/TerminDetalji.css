@@ -221,6 +221,28 @@
   grid-template-columns: 1fr;
   gap: 14px;
 }
+.termin-izvestaj-polje {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--color-disabled);
+  font-size: 13px;
+  font-weight: 700;
+}
+.termin-izvestaj-polje p {
+  margin: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-ink);
+  font-weight: 400;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+.termin-izvestaj-prazno {
+  margin: 0;
+  color: var(--color-disabled);
+}
 .termin-izvestaj-form label {
   display: flex;
   flex-direction: column;
