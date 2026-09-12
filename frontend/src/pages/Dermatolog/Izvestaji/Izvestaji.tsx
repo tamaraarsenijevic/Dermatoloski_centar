@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { getTermini } from "../../../api/termini";
-import {
-  dodajIzvestaj,
-  getIzvestajZaTermin,
-  obrisiIzvestaj,
-  izmeniIzvestaj,
-} from "../../../api/izvestaji";
+import { getIzvestajZaTermin } from "../../../api/izvestaji";
 import type { Termin, Izvestaj } from "../../../types";
 import {
   otvoriIzvestajKaoPdf,
@@ -20,14 +15,7 @@ export default function IzvestajiStranica() {
     Record<number, Izvestaj>
   >({});
   const [ucitavanje, setUcitavanje] = useState(true);
-  const [brisanje, setBrisanje] = useState(false);
   const [greska, setGreska] = useState("");
-  const [poruka, setPoruka] = useState("");
-  const [forma, setForma] = useState({
-    dijagnoza: "",
-    terapija: "",
-    anamneza: "",
-  });
 
   useEffect(() => {
     let ignore = false;
@@ -77,63 +65,7 @@ export default function IzvestajiStranica() {
 
   const handleIzaberiTermin = async (termin: Termin) => {
     setIzabraniTermin(termin);
-    const izvestaj = izvestajiPoTerminu[termin.id];
-    setForma({
-      dijagnoza: izvestaj?.dijagnoza || "",
-      terapija: izvestaj?.terapija || "",
-      anamneza: izvestaj?.anamneza || "",
-    });
-    setPoruka("");
     setGreska("");
-  };
-
-  const handleUnos = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!izabraniTermin) return;
-    setGreska("");
-    try {
-      const postojeciIzvestaj = izvestajiPoTerminu[izabraniTermin.id];
-      const res = postojeciIzvestaj
-        ? await izmeniIzvestaj(postojeciIzvestaj.id, forma)
-        : await dodajIzvestaj({ terminId: izabraniTermin.id, ...forma });
-      setPoruka(
-        postojeciIzvestaj
-          ? "Izveštaj uspešno ažuriran."
-          : "Izveštaj uspešno sačuvan.",
-      );
-      setIzvestajiPoTerminu({
-        ...izvestajiPoTerminu,
-        [izabraniTermin.id]: res.data,
-      });
-    } catch {
-      setGreska("Greška pri čuvanju izveštaja.");
-    }
-  };
-
-  const handleBrisanje = async () => {
-    if (!izabraniTermin) return;
-    const izvestaj = izvestajiPoTerminu[izabraniTermin.id];
-    if (
-      !izvestaj ||
-      !window.confirm("Da li ste sigurni da želite da obrišete izveštaj?")
-    ) {
-      return;
-    }
-    setBrisanje(true);
-    setGreska("");
-    setPoruka("");
-    try {
-      await obrisiIzvestaj(izvestaj.id);
-      const preostaliIzvestaji = { ...izvestajiPoTerminu };
-      delete preostaliIzvestaji[izabraniTermin.id];
-      setIzvestajiPoTerminu(preostaliIzvestaji);
-      setForma({ dijagnoza: "", terapija: "", anamneza: "" });
-      setPoruka("Izveštaj je uspešno obrisan.");
-    } catch {
-      setGreska("Greška pri brisanju izveštaja.");
-    } finally {
-      setBrisanje(false);
-    }
   };
 
   return (
@@ -143,7 +75,7 @@ export default function IzvestajiStranica() {
           <p className="izvestaji-eyebrow">Medicinska dokumentacija</p>
           <h2>Izveštaji sa pregleda</h2>
           <p className="izvestaji-subtitle">
-            Unesite nalaz za završen pregled i sačuvajte ga kao PDF.
+            Pregledajte nalaze završenih pregleda i preuzmite ih kao PDF.
           </p>
         </div>
       </div>
@@ -204,96 +136,59 @@ export default function IzvestajiStranica() {
             <>
               <div className="izvestaji-panel-heading">
                 <div>
-                  <p className="izvestaji-kicker">
-                    {izvestajiPoTerminu[izabraniTermin.id]
-                      ? "Izmena zapisa"
-                      : "Novi zapis"}
-                  </p>
+                  <p className="izvestaji-kicker">Pregled zapisa</p>
                   <h3>
-                    Unos izveštaja — {izabraniTermin.pacijent.ime}{" "}
+                    Izveštaj — {izabraniTermin.pacijent.ime}{" "}
                     {izabraniTermin.pacijent.prezime}
                   </h3>
                 </div>
               </div>
-              {poruka && <p className="izvestaji-success">{poruka}</p>}
-              <form onSubmit={handleUnos} className="izvestaj-form">
-                <div className="izvestaj-field">
-                  <label htmlFor="dijagnoza">Dijagnoza</label>
-                  <textarea
-                    id="dijagnoza"
-                    value={forma.dijagnoza}
-                    onChange={(e) =>
-                      setForma({ ...forma, dijagnoza: e.target.value })
-                    }
-                    required
-                    style={{ width: "100%", minHeight: 60, padding: 8 }}
-                  />
-                </div>
-                <div className="izvestaj-field">
-                  <label htmlFor="terapija">Terapija</label>
-                  <textarea
-                    id="terapija"
-                    value={forma.terapija}
-                    onChange={(e) =>
-                      setForma({ ...forma, terapija: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="izvestaj-field">
-                  <label htmlFor="anamneza">Anamneza</label>
-                  <textarea
-                    id="anamneza"
-                    value={forma.anamneza}
-                    onChange={(e) =>
-                      setForma({ ...forma, anamneza: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="izvestaj-form-footer">
-                  <button
-                    type="submit"
-                    className="izvestaj-primary-button"
-                    disabled={brisanje}
-                  >
-                    {izvestajiPoTerminu[izabraniTermin.id]
-                      ? "Ažuriraj izveštaj"
-                      : "Sačuvaj izveštaj"}
-                  </button>
-                  {izvestajiPoTerminu[izabraniTermin.id] && (
-                    <>
-                      <button
-                        type="button"
-                        className="izvestaj-delete-button"
-                        onClick={handleBrisanje}
-                        disabled={brisanje}
-                      >
-                        {brisanje ? "Brisanje..." : "Obriši izveštaj"}
-                      </button>
-                      <button
-                        type="button"
-                        className="izvestaj-pdf-button"
-                        onClick={() =>
-                          sacuvajIzvestajKaoPdf(
-                            izvestajiPoTerminu[izabraniTermin.id],
-                            izabraniTermin.pacijent,
-                            izabraniTermin,
-                          )
-                        }
-                        disabled={brisanje}
-                      >
-                        Preuzmi PDF
-                      </button>
-                    </>
+              {izvestajiPoTerminu[izabraniTermin.id] ? (
+                <div className="izvestaj-form">
+                  {(["dijagnoza", "terapija", "anamneza"] as const).map(
+                    (polje) => (
+                      <div className="izvestaj-field" key={polje}>
+                        <span className="izvestaj-field-label">
+                          {polje === "dijagnoza"
+                            ? "Dijagnoza"
+                            : polje === "terapija"
+                              ? "Terapija"
+                              : "Anamneza"}
+                        </span>
+                        <p className="izvestaj-readonly-value">
+                          {izvestajiPoTerminu[izabraniTermin.id][polje] || "-"}
+                        </p>
+                      </div>
+                    ),
                   )}
+                  <div className="izvestaj-form-footer">
+                    <button
+                      type="button"
+                      className="izvestaj-pdf-button"
+                      onClick={() =>
+                        sacuvajIzvestajKaoPdf(
+                          izvestajiPoTerminu[izabraniTermin.id],
+                          izabraniTermin.pacijent,
+                          izabraniTermin,
+                        )
+                      }
+                    >
+                      Preuzmi PDF
+                    </button>
+                  </div>
                 </div>
-              </form>
+              ) : (
+                <p className="izvestaji-state">
+                  Za ovaj termin nema sačuvanog izveštaja.
+                </p>
+              )}
             </>
           ) : (
             <div className="izvestaji-empty">
-              <span className="izvestaji-empty-icon">+</span>
+              <span className="izvestaji-empty-icon">i</span>
               <h3>Izaberite termin</h3>
               <p>
-                Odaberite završeni termin sa leve strane da unesete izveštaj.
+                Odaberite završeni termin sa leve strane da pregledate izveštaj.
               </p>
             </div>
           )}

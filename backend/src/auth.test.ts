@@ -223,7 +223,12 @@ describe("Backend auth and availability logic", () => {
     } as any);
     vi.mocked(prisma.$transaction).mockImplementation(async (callback) => {
       const tx = {
-        usluga: { findUnique: vi.fn().mockResolvedValue({ trajanjeMin: 30 }) },
+        usluga: {
+          findUnique: vi.fn().mockResolvedValue({
+            trajanjeMin: 30,
+            aktivan: true,
+          }),
+        },
         termin: {
           findMany: vi.fn().mockResolvedValue([]),
           create: vi.fn().mockResolvedValue({

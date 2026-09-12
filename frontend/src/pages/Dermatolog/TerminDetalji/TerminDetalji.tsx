@@ -86,13 +86,11 @@ export default function TerminDetalji() {
           vreme: formatZaVreme(pronadjen.datumVreme),
         });
         setIzvestaj(izvestajRes?.data ?? null);
-        if (izvestajRes?.data) {
-          setForma({
-            dijagnoza: izvestajRes.data.dijagnoza,
-            terapija: izvestajRes.data.terapija || "",
-            anamneza: izvestajRes.data.anamneza || "",
-          });
-        }
+        setForma({
+          dijagnoza: izvestajRes?.data?.dijagnoza || "",
+          terapija: izvestajRes?.data?.terapija || "",
+          anamneza: izvestajRes?.data?.anamneza || "",
+        });
       } catch {
         if (!ignore) setGreska("Greška pri učitavanju detalja termina.");
       } finally {
@@ -174,30 +172,10 @@ export default function TerminDetalji() {
     }
   };
 
-  const sacuvajIzvestaj = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!termin) return;
-    setSlanje(true);
-    setGreska("");
-    setPoruka("");
-    try {
-      const res = izvestaj
-        ? await izmeniIzvestaj(izvestaj.id, forma)
-        : await dodajIzvestaj({ terminId: termin.id, ...forma });
-      setIzvestaj(res.data);
-      setPoruka("Izveštaj je uspešno sačuvan.");
-    } catch {
-      setGreska(
-        "Izveštaj za ovaj termin već postoji ili podaci nisu ispravni.",
-      );
-    } finally {
-      setSlanje(false);
-    }
-  };
-
   const obrisiPostojeciIzvestaj = async () => {
     if (
       !izvestaj ||
+      termin?.status !== "ZAKAZANO" ||
       !window.confirm("Da li ste sigurni da želite da obrišete izveštaj?")
     ) {
       return;
@@ -217,6 +195,32 @@ export default function TerminDetalji() {
       setGreska(greska || "Greška pri brisanju izveštaja.");
     } finally {
       setBrisanjeIzvestaja(false);
+    }
+  };
+
+  const sacuvajIzvestaj = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!termin || termin.status !== "ZAKAZANO") return;
+    setSlanje(true);
+    setGreska("");
+    setPoruka("");
+    try {
+      const res = izvestaj
+        ? await izmeniIzvestaj(izvestaj.id, forma)
+        : await dodajIzvestaj({ terminId: termin.id, ...forma });
+      setIzvestaj(res.data);
+      setPoruka(
+        izvestaj
+          ? "Izveštaj je uspešno izmenjen."
+          : "Izveštaj je uspešno dodat.",
+      );
+    } catch (error) {
+      const greska = axios.isAxiosError(error)
+        ? error.response?.data?.greska
+        : undefined;
+      setGreska(greska || "Greška pri čuvanju izveštaja.");
+    } finally {
+      setSlanje(false);
     }
   };
 
@@ -250,6 +254,7 @@ export default function TerminDetalji() {
 
   const terminZakljucan =
     termin.status === "ZAVRSENO" || termin.status === "OTKAZANO";
+  const izvestajMozeDaSeMenja = termin.status === "ZAKAZANO";
 
   return (
     <div className="termin-detalji">
@@ -395,7 +400,7 @@ export default function TerminDetalji() {
       <section className="termin-detalji-panel termin-izvestaj-panel">
         <div className="termin-panel-heading">
           <div>
-            <h3>{izvestaj ? "Izveštaj sa pregleda" : "Dodaj izveštaj"}</h3>
+            <h3>Izveštaj sa pregleda</h3>
           </div>
           {izvestaj && (
             <button
@@ -408,57 +413,112 @@ export default function TerminDetalji() {
             </button>
           )}
         </div>
-        <form onSubmit={sacuvajIzvestaj} className="termin-izvestaj-form">
-          <label>
-            Dijagnoza
-            <textarea
-              value={forma.dijagnoza}
-              onChange={(e) =>
-                setForma({ ...forma, dijagnoza: e.target.value })
-              }
-              required
-              disabled={terminZakljucan}
-            />
-          </label>
-          <label>
-            Terapija
-            <textarea
-              value={forma.terapija}
-              onChange={(e) => setForma({ ...forma, terapija: e.target.value })}
-              disabled={terminZakljucan}
-            />
-          </label>
-          <label>
-            Anamneza
-            <textarea
-              value={forma.anamneza}
-              onChange={(e) => setForma({ ...forma, anamneza: e.target.value })}
-              disabled={terminZakljucan}
-            />
-          </label>
-          <div className="termin-izvestaj-akcije">
-            <button
-              type="submit"
-              disabled={slanje || brisanjeIzvestaja || terminZakljucan}
-            >
-              {slanje
-                ? "Čuvanje..."
-                : izvestaj
-                  ? "Sačuvaj izmene"
-                  : "Sačuvaj izveštaj"}
-            </button>
-            {izvestaj && (
-              <button
-                type="button"
-                className="izvestaj-brisi"
-                onClick={obrisiPostojeciIzvestaj}
-                disabled={slanje || brisanjeIzvestaja || terminZakljucan}
-              >
-                {brisanjeIzvestaja ? "Brisanje..." : "Obriši izveštaj"}
+        {izvestaj ? (
+          izvestajMozeDaSeMenja ? (
+            <form onSubmit={sacuvajIzvestaj} className="termin-izvestaj-form">
+              <label>
+                Dijagnoza
+                <textarea
+                  value={forma.dijagnoza}
+                  onChange={(e) =>
+                    setForma({ ...forma, dijagnoza: e.target.value })
+                  }
+                  required
+                />
+              </label>
+              <label>
+                Terapija
+                <textarea
+                  value={forma.terapija}
+                  onChange={(e) =>
+                    setForma({ ...forma, terapija: e.target.value })
+                  }
+                />
+              </label>
+              <label>
+                Anamneza
+                <textarea
+                  value={forma.anamneza}
+                  onChange={(e) =>
+                    setForma({ ...forma, anamneza: e.target.value })
+                  }
+                />
+              </label>
+              <div className="termin-izvestaj-akcije">
+                <button type="submit" disabled={slanje || brisanjeIzvestaja}>
+                  {slanje
+                    ? "Čuvanje..."
+                    : izvestaj
+                      ? "Sačuvaj izmene"
+                      : "Sačuvaj izveštaj"}
+                </button>
+                <button
+                  type="button"
+                  className="izvestaj-brisi"
+                  onClick={obrisiPostojeciIzvestaj}
+                  disabled={slanje || brisanjeIzvestaja}
+                >
+                  {brisanjeIzvestaja ? "Brisanje..." : "Obriši izveštaj"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="termin-izvestaj-form">
+              <div className="termin-izvestaj-polje">
+                <span>Dijagnoza</span>
+                <p>{izvestaj.dijagnoza}</p>
+              </div>
+              <div className="termin-izvestaj-polje">
+                <span>Terapija</span>
+                <p>{izvestaj.terapija || "-"}</p>
+              </div>
+              <div className="termin-izvestaj-polje">
+                <span>Anamneza</span>
+                <p>{izvestaj.anamneza || "-"}</p>
+              </div>
+            </div>
+          )
+        ) : izvestajMozeDaSeMenja ? (
+          <form onSubmit={sacuvajIzvestaj} className="termin-izvestaj-form">
+            <label>
+              Dijagnoza
+              <textarea
+                value={forma.dijagnoza}
+                onChange={(e) =>
+                  setForma({ ...forma, dijagnoza: e.target.value })
+                }
+                required
+              />
+            </label>
+            <label>
+              Terapija
+              <textarea
+                value={forma.terapija}
+                onChange={(e) =>
+                  setForma({ ...forma, terapija: e.target.value })
+                }
+              />
+            </label>
+            <label>
+              Anamneza
+              <textarea
+                value={forma.anamneza}
+                onChange={(e) =>
+                  setForma({ ...forma, anamneza: e.target.value })
+                }
+              />
+            </label>
+            <div className="termin-izvestaj-akcije">
+              <button type="submit" disabled={slanje}>
+                {slanje ? "Čuvanje..." : "Sačuvaj izveštaj"}
               </button>
-            )}
-          </div>
-        </form>
+            </div>
+          </form>
+        ) : (
+          <p className="termin-izvestaj-prazno">
+            Za ovaj termin nema sačuvanog izveštaja.
+          </p>
+        )}
       </section>
     </div>
   );
